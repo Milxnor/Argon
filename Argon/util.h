@@ -108,6 +108,20 @@ namespace Logger
 			log.Write(Str);
 	}
 
+	static void DebugLog(const std::string& Str);
+
+#ifdef DEV
+	static void DebugLog(const std::string& Str)
+	{
+		std::cout << _("[ARGON DEBUG] ") << Str << '\n';
+
+		if (bWriteToFile)
+			log.Write(Str);
+	}
+#else
+	static void DebugLog(const std::string& Str) {};
+#endif
+
 	static void ChangeColor(Color& color)
 	{
 

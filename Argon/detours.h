@@ -1,11 +1,16 @@
 #pragma once
 
 #include "structs.h"
+#include "util.h"
 
 void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 {
 	if (Object && Function)
 	{
+		auto FunctionName = Function->GetFullName();
+		
+		if (FunctionName.contains(_("UAC")))
+			return nullptr;
 	}
 
 	return ProcessEventO(Object, Function, Params);
@@ -79,4 +84,12 @@ CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 	}
 
 	return curl_easy_setopt(curl, option, url);
+}
+
+void (__fastcall* RequestExitWithStatusOriginal)(char a1, uint8_t a2, int a3);
+
+void __fastcall RequestExitWithStatusDetour(char a1, uint8_t a2, int a3)
+{
+	Logger::log.Write(_("RequestExit called!"));
+	return;
 }

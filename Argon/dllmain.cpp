@@ -2,16 +2,28 @@
 #include <iostream>
 
 #include "detours.h"
-#include "structs.h"
 #include "util.h"
+#include "helper.h"
 
 DWORD WINAPI Input(LPVOID)
 {
     while (1)
     {
-
         Sleep(1000 / 30);
     }
+}
+
+DWORD WINAPI Startup(LPVOID)
+{
+    CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
+    // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+
+    FString Msg;
+    Msg.Set(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
+	
+    // Helper::Console::Say(Msg);
+
+    return 0;
 }
 
 DWORD WINAPI Main(LPVOID)
@@ -25,7 +37,7 @@ DWORD WINAPI Main(LPVOID)
 
     if (InitializationStatus != MH_OK)
     {
-        MessageBoxA(0, _("MinHook failed to initialize.\n"), _("Argon"), MB_ICONERROR);
+        MessageBoxA(0, _("MinHook failed to initialize."), _("Argon"), MB_ICONERROR);
         FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
 
@@ -49,7 +61,7 @@ DWORD WINAPI Main(LPVOID)
 
     if (!Setup(ProcessEventDetour))
     {
-		MessageBoxA(0, _("Failed to setup.\n"), _("Argon"), MB_ICONERROR);
+		MessageBoxA(0, _("Failed to setup."), _("Argon"), MB_ICONERROR);
 		FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
 
@@ -59,12 +71,22 @@ DWORD WINAPI Main(LPVOID)
     CHECK_PATTERN(cURLEasyAddr, _("curl_easy_setopt"));
     curl_easy_setopt = decltype(curl_easy_setopt)(cURLEasyAddr);
 
+    auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
+    CHECK_PATTERN(RequestExitWithStatusAddr, "RequestExitWithStatus");
+
+
     MH_CreateHook((PVOID)cURLEasyAddr, curl_easy_setoptDetour, (PVOID*)&curl_easy_setopt);
     MH_EnableHook((PVOID)cURLEasyAddr);
+
+    MH_CreateHook((LPVOID)RequestExitWithStatusAddr, RequestExitWithStatusDetour, (LPVOID*)&RequestExitWithStatusOriginal);
+    MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
 	
     CreateThread(0, 0, Input, 0, 0, 0);
+    CreateThread(0, 0, Startup, 0, 0, 0);
 
     Logger::Log(_("Hooked and found every pattern successfully!"));
+
+    return 0;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dllReason, LPVOID lpReserved)
