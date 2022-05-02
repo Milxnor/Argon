@@ -29,7 +29,7 @@ DWORD WINAPI Main(LPVOID)
         FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
 
-    auto Ascii = R"(
+    auto Ascii = _(R"(
   /$$$$$$                                         
  /$$__  $$                                        
 | $$  \ $$  /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$$ 
@@ -41,7 +41,7 @@ DWORD WINAPI Main(LPVOID)
                      /$$  \ $$                    
                     |  $$$$$$/                    
                      \______/                     
-)";
+)");
 
     Logger::log.Write("\n\n\n", false);
 
