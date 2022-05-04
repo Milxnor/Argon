@@ -22,11 +22,11 @@ namespace Helper
             }
 
             static auto ConsoleClass = FindObject(_("Class /Script/Engine.Console"));
-            static auto GameViewport = Globals::Engine->Member<UObject*>(_("GameViewport"));
+            static auto GameViewport = Globals::GetEngine()->Member<UObject*>(_("GameViewport"));
 			
             while (!*GameViewport)
             {
-                GameViewport = Globals::Engine->Member<UObject*>(_("GameViewport"));
+                GameViewport = Globals::GetEngine()->Member<UObject*>(_("GameViewport"));
                 Sleep(1000 / 30);
             }
 			
@@ -42,7 +42,7 @@ namespace Helper
             params.Outer = *GameViewport;
 
             static auto GSC = FindObject(_("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-            static auto fn = FindObject(_("Function /Script/Engine.GameplayStatics.SpawnObject")); // GSC->Function(_("SpawnObject"));
+            static auto fn = GSC->Function(_("SpawnObject"));
 
             GSC->ProcessEvent(fn, &params);
 
@@ -60,16 +60,14 @@ namespace Helper
                 Sleep(1000 / 30);
             }
 
-            static auto fn = FindObject(_("Function /Script/Engine.GameMode.Say"), true);
-
-            auto GameMode = *Globals::World->Member<UObject*>(_("AuthorityGameMode"));
+            auto GameMode = *Globals::GetWorld()->Member<UObject*>(_("AuthorityGameMode"));
 
             while (!GameMode)
             {
-                GameMode = *Globals::World->Member<UObject*>(_("AuthorityGameMode"));
+                GameMode = *Globals::GetWorld()->Member<UObject*>(_("AuthorityGameMode"));
             }
 
-            GameMode->ProcessEvent(fn, &Str);
+            GameMode->ProcessEvent(GameMode->Function(_("Say")), &Str);
         }
     }
 
@@ -84,9 +82,8 @@ namespace Helper
                 Sleep(1000 / 30);
             }
 			
-            auto fn = FindObject(_("Function /Script/Engine.GameplayStatics.SpawnObject"));
             auto statics = FindObject(_("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-            CheatManager = Globals::PC->Member<UObject*>(_("CheatManager"));
+            CheatManager = Globals::GetPC()->Member<UObject*>(_("CheatManager"));
             auto CheatManagerClass = FindObject(_("Class /Script/Engine.CheatManager"));
 
             struct
@@ -99,7 +96,7 @@ namespace Helper
             params.ObjectClass = CheatManagerClass;
             params.Outer = Globals::PC;
 
-            statics->ProcessEvent(fn, &params);
+            statics->ProcessEvent(statics->Function(_("SpawnObject")), &params);
 
             *CheatManager = params.ReturnValue;
 
