@@ -16,12 +16,12 @@ DWORD WINAPI Input(LPVOID)
 DWORD WINAPI Startup(LPVOID)
 {
     CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
-    // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+    CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
 
     FString Msg;
     Msg.Set(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
 	
-    // Helper::Console::Say(Msg);
+    Helper::Console::Say(Msg);
 
     return 0;
 }
@@ -64,20 +64,29 @@ DWORD WINAPI Main(LPVOID)
 		MessageBoxA(0, _("Failed to setup."), _("Argon"), MB_ICONERROR);
 		FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
+    
+    if (!FindObject(_("FortEngine_")))
+    {
+        MessageBoxA(0, _("Unfortunately, Argon does not work when injected on startup. Please inject in lobby."), _("Argon"), MB_ICONINFORMATION);
+        FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
+    }
 
     Logger::Log(_("Setting up Argon v0.1. Made by Milxnor#3531."));
 
     auto cURLEasyAddr = FindPattern(_("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9"));
-    CHECK_PATTERN(cURLEasyAddr, _("curl_easy_setopt"));
-    curl_easy_setopt = decltype(curl_easy_setopt)(cURLEasyAddr);
+	
+    if (!cURLEasyAddr)
+        std::cout << _("Warning: Failed to find curl_easy_setopt.\n");
 
     auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
-    CHECK_PATTERN(RequestExitWithStatusAddr, "RequestExitWithStatus");
+    CHECK_PATTERN(RequestExitWithStatusAddr, _("RequestExitWithStatus"));
 
-
-    MH_CreateHook((PVOID)cURLEasyAddr, curl_easy_setoptDetour, (PVOID*)&curl_easy_setopt);
-    MH_EnableHook((PVOID)cURLEasyAddr);
-
+    if (cURLEasyAddr)
+    {
+        MH_CreateHook((PVOID)cURLEasyAddr, curl_easy_setoptDetour, (PVOID*)&curl_easy_setopt);
+        MH_EnableHook((PVOID)cURLEasyAddr);
+    }
+	
     MH_CreateHook((LPVOID)RequestExitWithStatusAddr, RequestExitWithStatusDetour, (LPVOID*)&RequestExitWithStatusOriginal);
     MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
 	
