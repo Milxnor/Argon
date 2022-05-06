@@ -4,7 +4,7 @@
 #include "util.h"
 
 void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
-{
+{	
 	if (Object && Function)
 	{
 		auto FunctionName = Function->GetFullName();

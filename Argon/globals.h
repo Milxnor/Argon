@@ -47,6 +47,7 @@ namespace Globals
 
 			World = *GameViewport->Member<UObject*>(_("World")); // we could also find the world by name but that depends on the map
 		}
+		
 		return World;
 	}
 
@@ -55,7 +56,7 @@ namespace Globals
 		if (bReset || !Pawn)
 		{
 			Globals::GetPC();
-			Pawn = *PC->Member<UObject*>("Pawn");
+			Pawn = *PC->Member<UObject*>(_("Pawn"));
 		}
 
 		return Pawn;

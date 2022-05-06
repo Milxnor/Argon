@@ -1,11 +1,57 @@
+#include <format>
+
 #include "globals.h"
+
+DWORD WINAPI DumpObjects(LPVOID)
+{
+    std::ofstream obj(_("Objects.txt"));
+
+    obj << _("[ARGON] Fortnite Version: ") << FN_Version << "\n\n";
+
+    for (int32_t i = 0; i < (ObjObjects ? ObjObjects->Num() : OldObjects->Num()); i++)
+    {
+        auto Object = ObjObjects ? ObjObjects->GetObjectById(i) : OldObjects->GetObjectById(i);
+
+        if (!Object) continue;
+
+        obj << std::format(_("[{}] {}\n"), Object->InternalIndex, Object->GetFullName());
+    }
+
+    obj.close();
+
+    Logger::Log(_("Dumped Objects!"));
+
+    return 0;
+}
 
 namespace Helper
 {
+    namespace GameplayStatics
+    {
+        static UObject* Class = nullptr;
+        static UObject* SpawnObjectFunction = nullptr;
+
+        auto GetClass()
+        {
+            if (!Class)
+                Class = FindObject(_("GameplayStatics /Script/Engine.Default__GameplayStatics"));
+
+            return Class;
+        }
+
+        auto GetSpawnObject()
+        {
+			if (!SpawnObjectFunction)
+                SpawnObjectFunction = GetClass()->Function(_("SpawnObject"));
+
+            return SpawnObjectFunction;
+        }
+    }
+
     namespace Easy
     {
 
-		    }
+    }
 
     namespace Console
     {
@@ -41,10 +87,9 @@ namespace Helper
             params.ObjectClass = ConsoleClass;
             params.Outer = *GameViewport;
 
-            static auto GSC = FindObject(_("GameplayStatics /Script/Engine.Default__GameplayStatics"));
-            static auto fn = GSC->Function(_("SpawnObject"));
+            static auto fn = GameplayStatics::GetSpawnObject();
 
-            GSC->ProcessEvent(fn, &params);
+            GameplayStatics::GetClass()->ProcessEvent(fn, &params);
 
             *ViewportConsole = params.ReturnValue;
 
@@ -55,7 +100,7 @@ namespace Helper
 
         static void Say(FString Str)
         {
-            while (Globals::GetWorld(true))
+            while (!Globals::GetWorld(true))
             {
                 Sleep(1000 / 30);
             }
@@ -65,9 +110,12 @@ namespace Helper
             while (!GameMode)
             {
                 GameMode = *Globals::GetWorld()->Member<UObject*>(_("AuthorityGameMode"));
+                Sleep(1000 / 30);
             }
+            
+            static auto say = GameMode->Function(_("Say"));
 
-            GameMode->ProcessEvent(GameMode->Function(_("Say")), &Str);
+            GameMode->ProcessEvent(say, &Str);
         }
     }
 
@@ -82,9 +130,8 @@ namespace Helper
                 Sleep(1000 / 30);
             }
 			
-            auto statics = FindObject(_("GameplayStatics /Script/Engine.Default__GameplayStatics"));
             CheatManager = Globals::GetPC()->Member<UObject*>(_("CheatManager"));
-            auto CheatManagerClass = FindObject(_("Class /Script/Engine.CheatManager"));
+            static auto CheatManagerClass = FindObject(_("Class /Script/Engine.CheatManager"));
 
             struct
             {
@@ -96,7 +143,7 @@ namespace Helper
             params.ObjectClass = CheatManagerClass;
             params.Outer = Globals::PC;
 
-            statics->ProcessEvent(statics->Function(_("SpawnObject")), &params);
+            GameplayStatics::GetClass()->ProcessEvent(GameplayStatics::GetSpawnObject(), &params);
 
             *CheatManager = params.ReturnValue;
 

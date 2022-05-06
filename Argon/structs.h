@@ -88,7 +88,7 @@ public:
 	{
 		if (!FMemory::Realloc)
 		{
-			MessageBoxA(0, _("How are you expecting to reserve with no Realloc?"), _("Fortnite"), MB_ICONERROR);
+			MessageBoxA(0, _("How are you expecting to reserve with no Realloc?"), _("Argon"), MB_ICONERROR);
 			return;
 		}
 
@@ -680,7 +680,7 @@ bool Setup(void* ProcessEventHookAddr)
 
 		if (!VerStr)
 		{
-			MessageBoxA(0, _("Failed to find fortnite version!"), _("Fortnite"), MB_ICONERROR);
+			MessageBoxA(0, _("Failed to find fortnite version!"), _("Argon"), MB_ICONERROR);
 			return false;
 		}
 
@@ -813,7 +813,7 @@ bool Setup(void* ProcessEventHookAddr)
 
 	if (!FreeMemoryAddr)
 	{
-		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Fortnite"), MB_OK);
+		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
 		return false;
 	}
 
@@ -823,7 +823,7 @@ bool Setup(void* ProcessEventHookAddr)
 
 	if (!ToStringAddr)
 	{
-		MessageBoxA(0, _("Failed to find FName::ToString"), _("Fortnite"), MB_OK);
+		MessageBoxA(0, _("Failed to find FName::ToString"), _("Argon"), MB_OK);
 		return false;
 	}
 
@@ -831,18 +831,23 @@ bool Setup(void* ProcessEventHookAddr)
 
 	if (!ProcessEventAddr)
 	{
-		MessageBoxA(0, _("Failed to find UObject::ProcessEvent"), _("Fortnite"), MB_OK);
+		MessageBoxA(0, _("Failed to find UObject::ProcessEvent"), _("Argon"), MB_OK);
 		return false;
 	}
 
 	ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
 
-	MH_CreateHook((PVOID)ProcessEventAddr, &ProcessEventHookAddr, (PVOID*)&ProcessEventO);
-	MH_EnableHook((PVOID)ProcessEventAddr);
+	std::cout << "a\n";
+
+	auto b = MH_CreateHook((PVOID)ProcessEventAddr, ProcessEventHookAddr, (PVOID*)&ProcessEventO);
+	auto c = MH_EnableHook((PVOID)ProcessEventAddr);
+
+	std::cout << b << '\n';
+	std::cout << c << '\n';
 
 	if (!ObjectsAddr)
 	{
-		MessageBoxA(0, _("Failed to find FUObjectArray::ObjObjects"), _("Fortnite"), MB_OK);
+		MessageBoxA(0, _("Failed to find FUObjectArray::ObjObjects"), _("Argon"), MB_OK);
 		return false;
 	}
 
