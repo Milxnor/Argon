@@ -145,6 +145,8 @@ public:
 
 	FString() {}
 
+	/*
+
 	FString(const std::wstring& str)
 	{
 		wchar_t buf[32] = {};
@@ -158,6 +160,18 @@ public:
 		wcsncpy_s(buf, str, std::wcslen(str));
 		Set(buf);
 	}
+
+	*/
+
+	FString(const wchar_t* other)
+	{
+		Data.ArrayMax = Data.ArrayNum = *other ? std::wcslen(other) + 1 : 0;
+
+		if (Data.ArrayNum)
+		{
+			Data.Data = const_cast<wchar_t*>(other);
+		}
+	};
 
 	/*
 

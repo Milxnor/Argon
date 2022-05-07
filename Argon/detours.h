@@ -112,40 +112,53 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			auto ScriptName = (*(FString*)Params).ToString();
 			std::transform(ScriptName.begin(), ScriptName.end(), ScriptName.begin(), ::tolower);
 
-			// std::vector<std::string> args = ScriptName.split(' ');
+			if (!ScriptName.empty())
+			{
+				static auto notImplemented = []() {
+					static FString* NotImplemented = new FString(TrimString(std::wstring(_(L"This cheatscript hasn't been implemented yet. It will be in a future Argon Update."))).c_str());
+					Helper::Console::Say(*NotImplemented);
+					std::cout << NotImplemented->ToString() << '\n';
+				};
+				// std::vector<std::string> args = ScriptName.split(' ');
 
-			if (ScriptName == _("beauthority"))
-			{
-				Helper::ChangeRoles(Globals::GetPC(), ENetRole::ROLE_Authority);
-				Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
-			}
-			
-			else if (ScriptName == _("fnver"))
-			{
-				FString FnVer = std::wstring(FN_Version.begin(), FN_Version.end());
-				Helper::Console::Say(FnVer);
-			}
+				if (ScriptName == _("beauthority"))
+				{
+					Helper::ChangeRoles(Globals::GetPC(), ENetRole::ROLE_Authority);
+					Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
+				}
 
-			else if (ScriptName == _("argonver"))
-			{
-				FString ArgonVer = TrimString(std::to_wstring(ArgonVersion));
+				else if (ScriptName == _("fnver") || ScriptName == _("fnversion") || ScriptName == _("fortniteversion") || ScriptName == _("fortnitever"))
+				{
+					FString FnVer = std::wstring(FN_Version.begin(), FN_Version.end()).c_str();
+					Helper::Console::Say(FnVer);
+				}
 
-				Helper::Console::Say(ArgonVer);
-			}
+				else if (ScriptName == _("argonver") || ScriptName == _("argonversion"))
+				{
+					static FString* ArgonVer = new FString(TrimString(std::to_wstring(ArgonVersion)).c_str());
 
-			else if (ScriptName == _("getroles"))
-			{
-				
-			}
+					Helper::Console::Say(*ArgonVer);
+				}
 
-			else if (ScriptName == _("spawnpickup"))
-			{
-				
-			}
-			
-			else if (ScriptName == _("help"))
-			{
-				
+				else if (ScriptName == _("getroles"))
+				{
+					notImplemented();
+				}
+
+				else if (ScriptName == _("spawnpickup"))
+				{
+					notImplemented();
+				}
+
+				else if (ScriptName == _("help"))
+				{
+					std::wstring helpStr = _(L"BeAuthority - Set's your Role and RemoteRole for your Pawn and PlayerController to Authority\n");
+					helpStr += _(L"FortniteVer - Prints Fortnite Version\n");
+					helpStr += _(L"ArgonVer - Prints Argon Version.\n");
+					helpStr += _(L"GetRoles - Prints Role and RemoteRole for your Pawn and PlayerController (COMING SOON).\n");
+					helpStr += _(L"SpawnPickup (WID) - Spawns a pickup at your location (COMING SOON).\n");
+					Helper::Console::Say(helpStr.c_str());
+				}
 			}
 		}
 
