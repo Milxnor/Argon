@@ -33,10 +33,8 @@ DWORD WINAPI Startup(LPVOID)
     CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
     // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
 
-    FString Msg;
-    Msg.Set(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status (Setup or not)\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
-	
-    Helper::Console::Say(Msg);
+    // FString Msg = _(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status (Setup or not)\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn.");
+    // Helper::Console::Say(Msg);
 
     return 0;
 }

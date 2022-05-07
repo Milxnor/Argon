@@ -133,8 +133,6 @@ public:
 		return str;
 	}
 
-	INL void operator=(const std::string& str) { Set(std::wstring(str.begin(), str.end()).c_str()); }
-
 	void FreeString()
 	{
 		Data.Free();
@@ -143,6 +141,22 @@ public:
 	~FString()
 	{
 		// FreeString();
+	}
+
+	FString() {}
+
+	FString(const std::wstring& str)
+	{
+		wchar_t buf[32] = {};
+		wcsncpy_s(buf, str.c_str(), str.length());
+		Set(buf);
+	}
+
+	FString(const wchar_t* str)
+	{
+		wchar_t buf[32] = {};
+		wcsncpy_s(buf, str, std::wcslen(str));
+		Set(buf);
 	}
 
 	/*

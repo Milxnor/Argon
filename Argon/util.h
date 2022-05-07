@@ -127,3 +127,14 @@ namespace Logger
 
 	}
 }
+
+
+std::wstring TrimString(std::wstring str) // not fastest 
+{
+	for (auto s = str.length() - 1; s > 0; --s)
+	{
+		if (str[s] == '0') str.erase(s, 1);
+		else break;
+	}
+	return str;
+}

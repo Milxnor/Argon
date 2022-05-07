@@ -122,15 +122,14 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			
 			if (ScriptName == _("fnver"))
 			{
-				FString FnVer;
-				FnVer.Set(std::wstring(FN_Version.begin(), FN_Version.end()).c_str());
+				FString FnVer = std::wstring(FN_Version.begin(), FN_Version.end());
 				Helper::Console::Say(FnVer);
 			}
 
 			if (ScriptName == _("argonver"))
 			{
-				FString ArgonVer;
-				ArgonVer.Set(std::to_wstring(ArgonVersion).c_str());
+				FString ArgonVer = TrimString(std::to_wstring(ArgonVersion));
+
 				Helper::Console::Say(ArgonVer);
 			}
 
