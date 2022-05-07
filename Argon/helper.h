@@ -130,7 +130,7 @@ namespace Helper
             return 0;
         }
 
-        static void Say(FString Str)
+        static void Say(FString&& Str)
         {
             // while (!Globals::GetWorld(true))
             // {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atlconv.h>
+
 #include "helper.h"
 #include "util.h"
 
@@ -115,9 +117,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			if (!ScriptName.empty())
 			{
 				static auto notImplemented = []() {
-					static FString* NotImplemented = new FString(TrimString(std::wstring(_(L"This cheatscript hasn't been implemented yet. It will be in a future Argon Update."))).c_str());
-					Helper::Console::Say(*NotImplemented);
-					std::cout << NotImplemented->ToString() << '\n';
+					Helper::Console::Say(_(L"This cheatscript hasn't been implemented yet. It will be in a future Argon Update."));
 				};
 				// std::vector<std::string> args = ScriptName.split(' ');
 
@@ -129,15 +129,12 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 
 				else if (ScriptName == _("fnver") || ScriptName == _("fnversion") || ScriptName == _("fortniteversion") || ScriptName == _("fortnitever"))
 				{
-					FString FnVer = std::wstring(FN_Version.begin(), FN_Version.end()).c_str();
-					Helper::Console::Say(FnVer);
+					Helper::Console::Say(std::wstring(FN_Version.begin(), FN_Version.end()).c_str());
 				}
 
 				else if (ScriptName == _("argonver") || ScriptName == _("argonversion"))
 				{
-					static FString* ArgonVer = new FString(TrimString(std::to_wstring(ArgonVersion)).c_str());
-
-					Helper::Console::Say(*ArgonVer);
+					Helper::Console::Say(TrimString(std::to_wstring(ArgonVersion)).c_str());
 				}
 
 				else if (ScriptName == _("getroles"))
@@ -157,8 +154,13 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 					helpStr += _(L"ArgonVer - Prints Argon Version.\n");
 					helpStr += _(L"GetRoles - Prints Role and RemoteRole for your Pawn and PlayerController (COMING SOON).\n");
 					helpStr += _(L"SpawnPickup (WID) - Spawns a pickup at your location (COMING SOON).\n");
+
+					helpStr += _(L"Help - Displays this.\n");
 					Helper::Console::Say(helpStr.c_str());
 				}
+
+				else
+					Helper::Console::Say(_(L"Unrecognized command."));
 			}
 		}
 

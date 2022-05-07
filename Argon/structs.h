@@ -59,7 +59,8 @@ template <class ElementType>
 class TArray // https://github.com/EpicGames/UnrealEngine/blob/4.21/Engine/Source/Runtime/Core/Public/Containers/Array.h#L305
 {
 	friend class FString;
-protected:
+// protected:
+public: 
 	ElementType* Data = nullptr;
 	int32_t ArrayNum = 0;
 	int32_t ArrayMax = 0;
@@ -138,6 +139,16 @@ public:
 		Data.Free();
 	}
 
+	void Set(const std::string& s)
+	{
+		int len;
+		int slength = (int)s.length() + 1;
+		len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+		wchar_t* buf = new wchar_t[len];
+		MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+		Data.Data = buf;
+	}
+
 	~FString()
 	{
 		// FreeString();
@@ -145,33 +156,39 @@ public:
 
 	FString() {}
 
-	/*
-
-	FString(const std::wstring& str)
+	FString(const std::string& s)
 	{
-		wchar_t buf[32] = {};
-		wcsncpy_s(buf, str.c_str(), str.length());
-		Set(buf);
+		Set(s);
 	}
 
-	FString(const wchar_t* str)
+	FString(char* s)
 	{
-		wchar_t buf[32] = {};
-		wcsncpy_s(buf, str, std::wcslen(str));
-		Set(buf);
+		Set(std::string(s));
 	}
-
-	*/
 
 	FString(const wchar_t* other)
 	{
-		Data.ArrayMax = Data.ArrayNum = *other ? std::wcslen(other) + 1 : 0;
-
-		if (Data.ArrayNum)
-		{
-			Data.Data = const_cast<wchar_t*>(other);
-		}
+		Set(other);
 	};
+
+	/*
+	
+	FString(const FString& other)
+	{
+		Set(other.Data.Data);
+		Data.ArrayMax = other.Data.ArrayMax;
+		Data.ArrayNum = other.Data.ArrayNum;
+	}
+
+	FORCEINLINE FString& operator=(FString other)
+	{
+		Set(other.Data.Data);
+		Data.ArrayMax = other.Data.ArrayMax;
+		Data.ArrayNum = other.Data.ArrayNum;
+		return *this;
+	}
+	
+	*/
 
 	/*
 
