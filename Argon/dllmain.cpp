@@ -116,7 +116,7 @@ DWORD WINAPI Main(LPVOID)
     MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
 	
     CreateThread(0, 0, Input, 0, 0, 0);
-    // CreateThread(0, 0, Startup, 0, 0, 0);
+    CreateThread(0, 0, Startup, 0, 0, 0);
     CreateThread(0, 0, GuiHook, 0, 0, 0);
 
     Logger::Log(_("Hooked and found every pattern successfully!"));

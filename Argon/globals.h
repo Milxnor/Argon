@@ -2,7 +2,7 @@
 
 #include "structs.h"
 
-#define DEVELOPMENT 1
+#define DEVELOPMENT 0
 
 static double ArgonVersion = 0.1;
 

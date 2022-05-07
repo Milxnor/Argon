@@ -167,7 +167,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 		else if (FunctionName.contains(_("LoadingScreen"))) // this is cursed but it works // this gets called after "we are connecting to anotehr server"
 		{
 			// i would just call begindestroy and finishdestroy but they aren't ufunctions
-			// Helper::CheatManager::Destroy();
+			Helper::CheatManager::Destroy();
 		}
 	}
 
