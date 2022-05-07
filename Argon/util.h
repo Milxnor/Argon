@@ -20,9 +20,9 @@ static void Exit(const std::string& message = "", UINT type = MB_ICONERROR, DWOR
 
 #define CHECK_PATTERN(sig, name) \
 	if(!sig) \
-		Exit(std::format("Could not find {}!", name));  \
+		Exit(std::format(_("Could not find {}!"), name));  \
 	else \
-		Logger::log.Write(std::string("Found ") + name); \
+		Logger::log.Write(std::string(_("Found ")) + name); \
 
 namespace Time
 {
@@ -60,12 +60,12 @@ public:
 	void Write(std::string Str, const bool bLogTime = true)
 	{
 		if (bLogTime)
-			Str = std::format("[{}] {}", Time::GetFullTime(), Str);
+			Str = std::format(_("[{}] {}"), Time::GetFullTime(), Str);
 
 		std::fstream f;
 
-		if (!FileName.contains(".txt"))
-			FileName += ".txt";
+		if (!FileName.contains(_(".txt")))
+			FileName += _(".txt");
 
 		f.open(FileName, std::ios::out | std::ios::app);
 		f << Str << '\n';
@@ -75,12 +75,12 @@ public:
 	static void WriteToFile(std::string Filename, std::string Str, const bool bLogTime = true)
 	{
 		if (bLogTime)
-			Str = std::format("[{}] {}", Time::GetFullTime(), Str);
+			Str = std::format(_("[{}] {}"), Time::GetFullTime(), Str);
 
 		std::fstream f;
 
-		if (!Filename.contains(".txt"))
-			Filename += ".txt";
+		if (!Filename.contains(_(".txt")))
+			Filename += _(".txt");
 
 		f.open(Filename, std::ios::out | std::ios::app);
 		f << Str << '\n';
@@ -136,5 +136,6 @@ std::wstring TrimString(std::wstring str) // not fastest
 		if (str[s] == '0') str.erase(s, 1);
 		else break;
 	}
+	
 	return str;
 }

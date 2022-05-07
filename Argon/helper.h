@@ -229,10 +229,10 @@ namespace Helper
     auto ChangeRole(UObject* Actor, ENetRole Role, bool bLocal = true)
     {
         if (bLocal)
-            *Actor->Member<TEnumAsByte<ENetRole>>("Role") = Role;
+            *Actor->Member<TEnumAsByte<ENetRole>>(_("Role")) = Role;
 		
         else
-            *Actor->Member<TEnumAsByte<ENetRole>>("RemoteRole") = Role;
+            *Actor->Member<TEnumAsByte<ENetRole>>(_("RemoteRole")) = Role;
 
         return Role;
     }
