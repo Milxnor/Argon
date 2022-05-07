@@ -37,6 +37,11 @@ struct TEnumAsByte // https://github.com/EpicGames/UnrealEngine/blob/4.21/Engine
 {
 	uint8_t Value;
 
+	TEnumAsByte(TEnum _value)
+		: Value(_value)
+	{
+	}
+
 	auto Get()
 	{
 		return Value;
@@ -355,7 +360,7 @@ struct FGuid
 	int D;
 };
 
-enum ENetRole
+enum ENetRole : uint8_t
 {
 	ROLE_None,
 	ROLE_SimulatedProxy,
