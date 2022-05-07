@@ -1,5 +1,8 @@
+#pragma once
+
 #include <format>
 
+#include "util.h"
 #include "globals.h"
 
 DWORD WINAPI DumpObjects(LPVOID)
@@ -141,7 +144,7 @@ namespace Helper
             } params{};
 
             params.ObjectClass = CheatManagerClass;
-            params.Outer = Globals::PC;
+            params.Outer = Globals::GetPC();
 
             GameplayStatics::GetClass()->ProcessEvent(GameplayStatics::GetSpawnObject(), &params);
 
@@ -149,5 +152,40 @@ namespace Helper
 
             return 0;
         }
+
+        static bool IsSetup()
+        {
+			return CheatManager != nullptr;
+        }
+    }
+
+    namespace Creative
+    {
+        static bool IsInCreative()
+        {
+            return Globals::GetWorld()->GetFullName() == _("World /Game/Creative/Maps/Creative_NoApollo_Terrain.Creative_NoApollo_Terrain");
+        }
+    }
+
+    auto ChangeRole(UObject* Actor, ENetRole Role, bool bLocal = true)
+    {
+        if (bLocal)
+        {
+			
+        }
+		
+        else
+        {
+			
+        }
+    }
+    
+    auto ChangeRoles(UObject* Actor, ENetRole Role)
+    {
+        if (!Actor || Role == ENetRole::ROLE_None || Role == ENetRole::ROLE_MAX)
+			return;
+
+        ChangeRole(Actor, Role, false);
+        ChangeRole(Actor, Role);
     }
 }

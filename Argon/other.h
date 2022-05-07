@@ -346,3 +346,20 @@ static uint64_t FindPattern(const char* signature, bool bRelative = false, uint3
 	}
 	return NULL;
 }
+
+struct FGuid
+{
+	int A;
+	int B;
+	int C;
+	int D;
+};
+
+enum ENetRole
+{
+	ROLE_None,
+	ROLE_SimulatedProxy,
+	ROLE_AutonomousProxy,
+	ROLE_Authority,
+	ROLE_MAX,
+};

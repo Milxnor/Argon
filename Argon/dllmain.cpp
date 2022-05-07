@@ -4,16 +4,25 @@
 #include "detours.h"
 #include "util.h"
 #include "helper.h"
+#include "gui.h"
 
 DWORD WINAPI Input(LPVOID)
 {
     while (1)
     {
-        if (GetAsyncKeyState(VK_F9))
+        if (GetAsyncKeyState(VK_F9) & 1)
             CreateThread(0, 0, DumpObjects, 0, 0, 0);
         
-        else if (GetAsyncKeyState(VK_F3))
+        else if (GetAsyncKeyState(VK_F3) & 1)
             CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+
+        else if (GetAsyncKeyState(VK_F4) & 1)
+        {
+            if (Helper::CheatManager::IsSetup())
+                Logger::Log(_("CheatManager is setup."));
+            else
+                Logger::Log(_("CheatManager is not setup."));
+        }
 
         Sleep(1000 / 30);
     }
@@ -25,7 +34,7 @@ DWORD WINAPI Startup(LPVOID)
     // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
 
     FString Msg;
-    Msg.Set(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
+    Msg.Set(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status (Setup or not)\nF3 - Make CheatManager\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
 	
     Helper::Console::Say(Msg);
 
@@ -65,7 +74,7 @@ DWORD WINAPI Main(LPVOID)
 
     std::cout << Ascii << "\n\n";
 
-    Logger::Log(_("Setting up Argon v0.1. Made by Milxnor#3531."));
+    Logger::Log(std::format(_("Setting up Argon v{}. Made by Milxnor#3531."), ArgonVersion));
 
     if (!Setup(ProcessEventDetour))
     {
@@ -73,11 +82,13 @@ DWORD WINAPI Main(LPVOID)
 		FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
     
+#if DEVELOPMENT == 0
     if (!FindObject(_("FortEngine_")))
     {
         MessageBoxA(0, _("Unfortunately, Argon does not work when injected on startup. Please inject in lobby."), _("Argon"), MB_ICONINFORMATION);
         FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
+#endif
 
     auto cURLEasyAddr = FindPattern(_("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9"));
 	
@@ -98,6 +109,7 @@ DWORD WINAPI Main(LPVOID)
 	
     CreateThread(0, 0, Input, 0, 0, 0);
     CreateThread(0, 0, Startup, 0, 0, 0);
+    CreateThread(0, 0, GuiHook, 0, 0, 0);
 
     Logger::Log(_("Hooked and found every pattern successfully!"));
 

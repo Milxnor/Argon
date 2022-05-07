@@ -1,16 +1,149 @@
 #pragma once
 
-#include "structs.h"
+#include "helper.h"
 #include "util.h"
+
+static bool bLogProcessEvent = false;
 
 void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 {	
 	if (Object && Function)
 	{
 		auto FunctionName = Function->GetFullName();
+
+		if (bLogProcessEvent)
+		{
+			if (!FunctionName.contains(_("EvaluateGraphExposedInputs")) &&
+				!FunctionName.contains(_("Tick")) &&
+				!FunctionName.contains(_("OnSubmixEnvelope")) &&
+				!FunctionName.contains(_("OnSubmixSpectralAnalysis")) &&
+				!FunctionName.contains(_("OnMouse")) &&
+				!FunctionName.contains(_("Pulse")) &&
+				!FunctionName.contains(_("BlueprintUpdateAnimation")) &&
+				!FunctionName.contains(_("BlueprintPostEvaluateAnimation")) &&
+				!FunctionName.contains(_("BlueprintModifyCamera")) &&
+				!FunctionName.contains(_("BlueprintModifyPostProcess")) &&
+				!FunctionName.contains(_("Loop Animation Curve")) &&
+				!FunctionName.contains(_("UpdateTime")) &&
+				!FunctionName.contains(_("GetMutatorByClass")) &&
+				!FunctionName.contains(_("UpdatePreviousPositionAndVelocity")) &&
+				!FunctionName.contains(_("IsCachedIsProjectileWeapon")) &&
+				!FunctionName.contains(_("LockOn")) &&
+				!FunctionName.contains(_("GetAbilityTargetingLevel")) &&
+				!FunctionName.contains(_("ReadyToEndMatch")) &&
+				!FunctionName.contains(_("ReceiveDrawHUD")) &&
+				!FunctionName.contains(_("OnUpdateDirectionalLightForTimeOfDay")) &&
+				!FunctionName.contains(_("GetSubtitleVisibility")) &&
+				!FunctionName.contains(_("GetValue")) &&
+				!FunctionName.contains(_("InputAxisKeyEvent")) &&
+				!FunctionName.contains(_("ServerTouchActiveTime")) &&
+				!FunctionName.contains(_("SM_IceCube_Blueprint_C")) &&
+				!FunctionName.contains(_("OnHovered")) &&
+				!FunctionName.contains(_("OnCurrentTextStyleChanged")) &&
+				!FunctionName.contains(_("OnButtonHovered")) &&
+				!FunctionName.contains(_("ExecuteUbergraph_ThreatPostProcessManagerAndParticleBlueprint")))
+			{
+				Logger::Log(FunctionName + ' ' + Object->GetFullName());
+			}
+		}
 		
 		if (FunctionName.contains(_("UAC")))
 			return nullptr;
+
+		else if (FunctionName.contains(_("ServerLoadingScreenDropped")))
+			Globals::GetWorld(true);
+
+		else if (FunctionName.contains(_("ServerGiveCreativeItem")))
+		{
+			struct params {
+				UObject* CreativeItem;
+				FGuid ItemToRemoveGuid;
+			};
+
+			auto GiveItemParams = (params*)Params;
+		}
+
+		else if (FunctionName.contains(_("ValidateSpawnItems"))) // No idea what this does
+		{
+			std::cout << _("Attempted to validate!\n");
+			return nullptr;
+		}
+
+		else if (FunctionName.contains(_("CanEquip"))) // No idea what this does
+		{
+			std::cout << _("CanEquip called!\n");
+			bool bCanEquip = true;
+			return &bCanEquip;
+		}
+
+		else if (FunctionName.contains(_("CanAddToChest"))) // No idea what this does
+		{
+			std::cout << _("CanAddToChest called!\n");
+			bool bCanAdd = true;
+			return &bCanAdd;
+		}
+
+		else if (FunctionName.contains(_("ServerAddToCachedPurchased"))) // This is uh, the acutal definition of the item in the chest when u add? Idk but whenever u spawn chest it's this wid
+		{
+			struct params {
+				UObject* ItemDefinition;
+				int32_t Count;
+			};
+
+			auto AddToCachedParams = (params*)Params;
+		}
+
+		else if (FunctionName.contains(_("ServerSpawnActorWithTransform")))
+		{
+			struct params {
+				UObject* Actor;
+				FTransform Transform;
+				bool bAllowOverlap;
+				bool bAllowGravity;
+				bool bIgnoreStructuralIssues;
+				bool bForPreviewing;
+			};
+
+			auto SpawnParams = (params*)Params;
+		}
+
+		else if (FunctionName.contains(_("CheatScript")))
+		{
+			auto ScriptName = (*(FString*)Params).ToString();
+			std::transform(ScriptName.begin(), ScriptName.end(), ScriptName.begin(), ::tolower);
+
+			// std::vector<std::string> args = ScriptName.split(' ');
+
+			if (ScriptName == _("beauthority"))
+			{
+				Helper::ChangeRoles(Globals::GetPC(), ENetRole::ROLE_Authority);
+				Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
+			}
+			
+			if (ScriptName == _("fnver"))
+			{
+				FString FnVer;
+				FnVer.Set(std::wstring(FN_Version.begin(), FN_Version.end()).c_str());
+				Helper::Console::Say(FnVer);
+			}
+
+			if (ScriptName == _("argonver"))
+			{
+				FString ArgonVer;
+				ArgonVer.Set(std::to_wstring(ArgonVersion).c_str());
+				Helper::Console::Say(ArgonVer);
+			}
+
+			if (ScriptName == _("getroles"))
+			{
+				
+			}
+
+			if (ScriptName == _("spawnpickup"))
+			{
+				
+			}
+		}
 	}
 
 	return ProcessEventO(Object, Function, Params);

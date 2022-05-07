@@ -837,14 +837,9 @@ bool Setup(void* ProcessEventHookAddr)
 
 	ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
 
-	std::cout << "a\n";
-
 	auto b = MH_CreateHook((PVOID)ProcessEventAddr, ProcessEventHookAddr, (PVOID*)&ProcessEventO);
 	auto c = MH_EnableHook((PVOID)ProcessEventAddr);
-
-	std::cout << b << '\n';
-	std::cout << c << '\n';
-
+	
 	if (!ObjectsAddr)
 	{
 		MessageBoxA(0, _("Failed to find FUObjectArray::ObjObjects"), _("Argon"), MB_OK);

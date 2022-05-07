@@ -2,6 +2,10 @@
 
 #include "structs.h"
 
+#define DEVELOPMENT 0
+
+static double ArgonVersion = 0.1;
+
 namespace Globals
 {
 	static bool bIsReady = false;
