@@ -6,6 +6,18 @@
 #include "helper.h"
 #include "gui.h"
 
+DWORD WINAPI Startup(LPVOID)
+{
+    CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
+    // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+
+    Sleep(1500);
+
+    Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
+
+    return 0;
+}
+
 DWORD WINAPI Input(LPVOID)
 {
     while (1)
@@ -22,6 +34,9 @@ DWORD WINAPI Input(LPVOID)
         else if (GetAsyncKeyState(VK_F6) & 1)
             Helper::CheatManager::Destroy();
 
+        else if (GetAsyncKeyState(VK_F7) & 1)
+            CreateThread(0, 0, Startup, 0, 0, 0);
+
         else if (GetAsyncKeyState(VK_F4) & 1)
         {
             if (Helper::CheatManager::IsSetup())
@@ -32,18 +47,6 @@ DWORD WINAPI Input(LPVOID)
 
         Sleep(1000 / 30);
     }
-}
-
-DWORD WINAPI Startup(LPVOID)
-{
-    CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
-    // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
-
-    Sleep(1500);
-
-    Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
-
-    return 0;
 }
 
 DWORD WINAPI Main(LPVOID)
@@ -113,7 +116,7 @@ DWORD WINAPI Main(LPVOID)
     MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
 	
     CreateThread(0, 0, Input, 0, 0, 0);
-    CreateThread(0, 0, Startup, 0, 0, 0);
+    // CreateThread(0, 0, Startup, 0, 0, 0);
     CreateThread(0, 0, GuiHook, 0, 0, 0);
 
     Logger::Log(_("Hooked and found every pattern successfully!"));

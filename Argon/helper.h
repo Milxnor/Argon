@@ -228,6 +228,9 @@ namespace Helper
 
     auto ChangeRole(UObject* Actor, ENetRole Role, bool bLocal = true)
     {
+        if (!Actor || Role == ENetRole::ROLE_None || Role == ENetRole::ROLE_MAX)
+            return ENetRole::ROLE_None;
+
         if (bLocal)
             *Actor->Member<TEnumAsByte<ENetRole>>(_("Role")) = Role;
 		
@@ -240,7 +243,7 @@ namespace Helper
     auto ChangeRoles(UObject* Actor, ENetRole Role)
     {
         if (!Actor || Role == ENetRole::ROLE_None || Role == ENetRole::ROLE_MAX)
-			return;
+            return;
 
         ChangeRole(Actor, Role, false);
         ChangeRole(Actor, Role);
