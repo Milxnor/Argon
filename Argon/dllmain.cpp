@@ -41,7 +41,7 @@ DWORD WINAPI Startup(LPVOID)
 
     Sleep(1500);
 
-    Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status (Setup or not)\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
+    Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
 
     return 0;
 }
