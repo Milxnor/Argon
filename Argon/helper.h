@@ -51,9 +51,48 @@ namespace Helper
         }
     }
 
+    namespace Kismet
+    {
+        static UObject* Class = nullptr;
+
+        auto DestroyActor(UObject* Actor)
+        {
+            if (!Actor) return;
+
+            static auto fn = Actor->Function(_("K2_DestroyActor"));
+			
+            if (!fn)
+            {
+                Logger::Log(_("[WARNING] Could not find K2_DestroyActor for ") + Actor->GetFullName());
+                return;
+            }
+			
+            Actor->ProcessEvent(fn, nullptr);
+        }
+    }
+
     namespace Easy
     {
+        UObject* SpawnObject(UObject* ObjectClass, UObject* Outer)
+        {
+            if (!ObjectClass || !Outer)
+                return nullptr;
+			
+            struct {
+                UObject* ObjectClass;
+                UObject* Outer;
+                UObject* ReturnValue;
+            } params{};
 
+            params.ObjectClass = ObjectClass;
+            params.Outer = Outer;
+
+            static auto fn = GameplayStatics::GetSpawnObject();
+
+            GameplayStatics::GetClass()->ProcessEvent(fn, &params);
+
+            return params.ReturnValue;
+        }
     }
 
     namespace Console
@@ -80,35 +119,25 @@ namespace Helper
             }
 			
             ViewportConsole = (*GameViewport)->Member<UObject*>(_("ViewportConsole"));
+			
+            auto ConsoleObject = Easy::SpawnObject(ConsoleClass, *GameViewport);
 
-            struct {
-                UObject* ObjectClass;
-                UObject* Outer;
-                UObject* ReturnValue;
-            } params{};
-
-            params.ObjectClass = ConsoleClass;
-            params.Outer = *GameViewport;
-
-            static auto fn = GameplayStatics::GetSpawnObject();
-
-            GameplayStatics::GetClass()->ProcessEvent(fn, &params);
-
-            *ViewportConsole = params.ReturnValue;
-
-            Logger::DebugLog(_("Console created!"));
-
+            if (ConsoleObject)
+                *ViewportConsole = ConsoleObject;
+            else
+                Logger::Log(_("[WARNING] SpawnObject failed to create console!"));
+			
             return 0;
         }
 
         static void Say(FString Str)
         {
-            while (!Globals::GetWorld(true))
-            {
-                Sleep(1000 / 30);
-            }
+            // while (!Globals::GetWorld(true))
+            // {
+                // Sleep(1000 / 30);
+            // }
 
-            auto GameMode = *Globals::GetWorld()->Member<UObject*>(_("AuthorityGameMode"));
+            auto GameMode = *Globals::GetWorld(true)->Member<UObject*>(_("AuthorityGameMode"));
 
             while (!GameMode)
             {
@@ -126,8 +155,16 @@ namespace Helper
     {
         static UObject** CheatManager = nullptr;
 
+        static bool IsSetup()
+        {
+            return CheatManager ? *CheatManager != nullptr : false; // The game will crash if you try to dereference a nullptr
+        }
+
         static DWORD WINAPI Setup(LPVOID)
         {
+            if (IsSetup())
+                return 0;
+
             while (!Globals::GetPC(true))
             {
                 Sleep(1000 / 30);
@@ -136,26 +173,48 @@ namespace Helper
             CheatManager = Globals::GetPC()->Member<UObject*>(_("CheatManager"));
             static auto CheatManagerClass = FindObject(_("Class /Script/Engine.CheatManager"));
 
-            struct
-            {
-                UObject* ObjectClass;
-                UObject* Outer;
-                UObject* ReturnValue;
-            } params{};
+            auto CheatManagerObject = Easy::SpawnObject(CheatManagerClass, Globals::GetPC());
 
-            params.ObjectClass = CheatManagerClass;
-            params.Outer = Globals::GetPC();
-
-            GameplayStatics::GetClass()->ProcessEvent(GameplayStatics::GetSpawnObject(), &params);
-
-            *CheatManager = params.ReturnValue;
+			if (CheatManagerObject)
+                *CheatManager = CheatManagerObject;
+            else
+                Logger::Log(_("[WARNING] SpawnObject failed to create CheatManager!"));
 
             return 0;
         }
 
-        static bool IsSetup()
+        static DWORD WINAPI SetupFort(LPVOID) // Create FortCheatManager
         {
-			return CheatManager != nullptr;
+            if (IsSetup())
+                return 0;
+
+            while (!Globals::GetPC(true))
+            {
+                Sleep(1000 / 30);
+            }
+
+            CheatManager = Globals::GetPC()->Member<UObject*>(_("CheatManager"));
+            static auto CheatManagerClass = FindObject(_("Class /Script/FortniteGame.FortCheatManager"));
+
+            auto CheatManagerObject = Easy::SpawnObject(CheatManagerClass, Globals::GetPC());
+
+            if (CheatManagerObject)
+                *CheatManager = CheatManagerObject;
+            else
+                Logger::Log(_("[WARNING] SpawnObject failed to create FortCheatManager!"));
+
+            return 0;
+        }
+
+        static void Destroy()
+        {
+            if (!IsSetup()) return;
+
+            Logger::Log(_("Destroying CheatManager!"));
+
+            (*CheatManager)->ObjectFlags = EObjectFlags::RF_NoFlags;
+			*CheatManager = nullptr;
+            CheatManager = nullptr;
         }
     }
 

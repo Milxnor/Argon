@@ -12,9 +12,15 @@ DWORD WINAPI Input(LPVOID)
     {
         if (GetAsyncKeyState(VK_F9) & 1)
             CreateThread(0, 0, DumpObjects, 0, 0, 0);
-        
+
         else if (GetAsyncKeyState(VK_F3) & 1)
             CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+
+        else if (GetAsyncKeyState(VK_F5) & 1)
+            CreateThread(0, 0, Helper::CheatManager::SetupFort, 0, 0, 0);
+
+        else if (GetAsyncKeyState(VK_F6) & 1)
+            Helper::CheatManager::Destroy();
 
         else if (GetAsyncKeyState(VK_F4) & 1)
         {

@@ -120,28 +120,39 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 				Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
 			}
 			
-			if (ScriptName == _("fnver"))
+			else if (ScriptName == _("fnver"))
 			{
 				FString FnVer = std::wstring(FN_Version.begin(), FN_Version.end());
 				Helper::Console::Say(FnVer);
 			}
 
-			if (ScriptName == _("argonver"))
+			else if (ScriptName == _("argonver"))
 			{
 				FString ArgonVer = TrimString(std::to_wstring(ArgonVersion));
 
 				Helper::Console::Say(ArgonVer);
 			}
 
-			if (ScriptName == _("getroles"))
+			else if (ScriptName == _("getroles"))
 			{
 				
 			}
 
-			if (ScriptName == _("spawnpickup"))
+			else if (ScriptName == _("spawnpickup"))
 			{
 				
 			}
+			
+			else if (ScriptName == _("help"))
+			{
+				
+			}
+		}
+
+		else if (FunctionName.contains(_("LoadingScreen"))) // this is cursed but it works // this gets called after "we are connecting to anotehr server"
+		{
+			// i would just call begindestroy and finishdestroy but they aren't ufunctions
+			Helper::CheatManager::Destroy();
 		}
 	}
 
