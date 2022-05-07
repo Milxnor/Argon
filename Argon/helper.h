@@ -212,8 +212,12 @@ namespace Helper
 
             Logger::Log(_("Destroying CheatManager!"));
 
-            (*CheatManager)->ObjectFlags = EObjectFlags::RF_NoFlags;
-			*CheatManager = nullptr;
+            if (CheatManager)
+            {
+                (*CheatManager)->ObjectFlags = EObjectFlags::RF_NoFlags;
+                *CheatManager = nullptr;
+            }
+			
             CheatManager = nullptr;
         }
     }
