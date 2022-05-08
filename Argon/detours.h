@@ -71,7 +71,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			}
 		}
 		
-		if (FunctionName.contains(_("UAC")))
+		if (FunctionName.contains(_("UAC")) || FunctionName.contains(_("SetFullscreenMode")))
 			return nullptr;
 
 		else if (FunctionName.contains(_("ServerLoadingScreenDropped")))
@@ -189,7 +189,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 					if (Globals::GetPawn(true))
 					{
 						static auto ScarDef = FindObject(_("FortWeaponRangedItemDefinition /Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03"));
-						Helper::SpawnPickup(ScarDef, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset, Globals::GetPawn());
+						Helper::SpawnPickup(ScarDef, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset, Globals::GetPawn(true));
 					}
 					
 					else
@@ -229,6 +229,16 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			return (void*)&LoadoutParams->ReturnValue; // real how processevent works
 		}
 
+		else if (FunctionName.contains(_("ServerEmote")))
+		{
+			struct params {
+				FName AssetName;
+			};
+			
+			auto EmoteParams = (params*)Params;
+
+			std::cout << "Emote: " << EmoteParams->AssetName.ToString() << '\n';
+		}
 	}
 
 	return ProcessEventO(Object, Function, Params);

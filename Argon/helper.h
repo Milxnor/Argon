@@ -408,6 +408,7 @@ namespace Helper
         params.InPickupSpawnSource = Src;
 
         Pickup->ProcessEvent(PrimaryPickupItemEntryFn, nullptr);
-        Pickup->ProcessEvent(TossPickupFn, &params);
+        if (Pickup && TossPickupFn)
+            Pickup->ProcessEvent(TossPickupFn, &params);
     }
 }
