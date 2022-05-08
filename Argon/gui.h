@@ -160,6 +160,46 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 		case 3:
 			if (ImGui::Button(_("Dump Objects")))
 				CreateThread(0, 0, DumpObjects, 0, 0, 0);
+
+			if (ImGui::Button(_("Change Head")))
+			{
+				std::cout << "Pawn: " << Globals::GetPawn(true)->GetFullName() << '\n';
+
+				auto head = FindObject(_("CustomCharacterPart /Game/Athena/Heroes/Meshes/Heads/Dev_TestAsset_Head_M_XL.Dev_TestAsset_Head_M_XL"));
+
+				if (!head)
+					std::cout << _("Could not find head!\n");
+
+				else
+				{
+					UObject*** CharacterParts = Globals::GetPawn()->Member<UObject**>(_("CharacterParts"));
+					
+					if (!CharacterParts)
+						std::cout << _("Could not find CharacterParts!\n");
+					
+					else if (!*CharacterParts) // characterparts = nullptr for some reason
+						std::cout << _("Could not find CharacterPartsArray!\n");
+
+					else if (!**CharacterParts)
+						std::cout << _("Could not find first CharacterPart!\n");
+
+					else
+					{
+						Logger::Log(_("Original HeadPart: ") + (*CharacterParts)[1]->GetFullName());
+
+						(*CharacterParts)[1] = head;
+
+						static auto fn = Globals::GetPawn()->Function(_("ApplyCosmeticLoadout"));
+
+						if (fn)
+							Globals::GetPawn()->ProcessEvent(fn, nullptr);
+
+						else
+							std::cout << _("Unable to find ApplyCosmeticLoadout!\n");
+					}
+				}
+			}
+		
 			break;
 #endif
 		case 4:

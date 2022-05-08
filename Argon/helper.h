@@ -212,7 +212,7 @@ namespace Helper
 
             Logger::Log(_("Destroying CheatManager!"));
 
-            if (CheatManager)
+            if (CheatManager && *CheatManager)
             {
                 (*CheatManager)->ObjectFlags = EObjectFlags::RF_NoFlags;
                 *CheatManager = nullptr;
@@ -251,5 +251,10 @@ namespace Helper
 
         ChangeRole(Actor, Role, false);
         ChangeRole(Actor, Role);
+    }
+
+    void ChangePart()
+    {
+		
     }
 }
