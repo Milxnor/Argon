@@ -54,6 +54,15 @@ namespace Helper
     namespace Kismet
     {
         static UObject* Class = nullptr;
+        static UObject* FortKismetClass = nullptr;
+
+        auto GetFortKismet()
+        {
+			if (!FortKismetClass)
+                FortKismetClass = FindObject(_("FortKismetLibrary / Script / FortniteGame.Default__FortKismetLibrary"));
+            
+            return FortKismetClass;
+        }
 
         auto DestroyActor(UObject* Actor)
         {
@@ -68,6 +77,53 @@ namespace Helper
             }
 			
             Actor->ProcessEvent(fn, nullptr);
+        }
+
+        bool ApplyCharacterCosmetics(UObject* Pawn, UObject* Body, UObject* Head)
+        {
+			// ApplyCharacterCosmetics(struct UObject* WorldContextObject, struct TArray<struct UCustomCharacterPart*> CharacterParts, struct AFortPlayerState* PlayerState, bool& bSuccess);
+
+            struct {
+                UObject* World;
+				TArray<UObject*> Parts;
+                UObject* PlayerState;
+                bool* bSuccess;
+            } params{};
+
+            static auto Hero = FindObject(_("FortHero /Engine/Transient.FortHero_"));
+
+            if (!Hero)
+            {
+                Logger::Log(_("[WARNING] Could not find FortHero!"));
+                return false;
+            }
+			
+            auto CharacterParts = Hero->Member<TArray<UObject*>>(_("CharacterParts"));
+			
+            if (!CharacterParts)
+            {
+				Logger::Log(_("Unable to find CharacterParts!"));
+                return false;
+            }
+			
+            CharacterParts->At(0) = Body;
+            CharacterParts->At(1) = Head;
+
+			params.World = Globals::GetWorld(true);
+            params.Parts = *CharacterParts;
+            params.PlayerState = *Pawn->Member<UObject*>(_("PlayerState"));
+
+            bool Success = false;
+            params.bSuccess = &Success;
+
+			auto fn = GetFortKismet()->Function(_("ApplyCharacterCosmetics"));
+
+            if (fn)
+                GetFortKismet()->ProcessEvent(fn, &params);
+            else
+                std::cout << _("Unable to find ApplyCharacterCosmetics!\n");
+			
+            return Success;
         }
     }
 
@@ -313,7 +369,7 @@ namespace Helper
     void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag Flags, EFortPickupSpawnSource Src, UObject* Pawn)
     {
         if (!ItemDef)
-            return
+            return;
 
         auto summonLoc = GetActorLocation(Pawn);
         auto Pickup = Easy::SpawnActor(FindObject(_("Class /Script/FortniteGame.FortPickupAthena")), summonLoc);
@@ -326,7 +382,7 @@ namespace Helper
             return;
         }
 
-        *reinterpret_cast<UObject**>((uintptr_t)PickupEntry + 0x18) = ItemDef;
+        *(UObject**)((uintptr_t)PickupEntry + 0x18) = ItemDef;
         *reinterpret_cast<int*>((uintptr_t)PickupEntry + 0x0c) = Count;
 
         static auto PrimaryPickupItemEntryFn = Pickup->Function(_("OnRep_PrimaryPickupItemEntry"));

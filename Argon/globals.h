@@ -59,8 +59,10 @@ namespace Globals
 	{
 		if (bReset || !Pawn)
 		{
-			Globals::GetPC();
-			Pawn = *PC->Member<UObject*>(_("Pawn"));
+			Globals::GetPC(true);
+
+			if (Globals::GetPC())
+				Pawn = *PC->Member<UObject*>(_("Pawn"));
 		}
 
 		return Pawn;

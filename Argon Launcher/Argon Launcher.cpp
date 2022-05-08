@@ -163,8 +163,7 @@ std::string GetFortnitePath()
 	return _("Could not find ProgramData!");
 }
 
-int main()
-{
+int main(){
 	auto fnPath = GetFortnitePath();
 
 	if (!fnPath.contains(_("\\")))

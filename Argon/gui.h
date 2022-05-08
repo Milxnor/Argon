@@ -127,10 +127,16 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				Tab = 4;
 				ImGui::EndTabItem();
 			}
+
+			if (ImGui::BeginTabItem(_("Other")))
+			{
+				Tab = 5;
+				ImGui::EndTabItem();
+			}
 			
 			if (ImGui::BeginTabItem(_("Credits")))
 			{
-				Tab = 5;
+				Tab = 6;
 				ImGui::EndTabItem();
 			}
 
@@ -265,8 +271,181 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				else
 					std::cout << _("Body is now invisible\n");
 			}
+			
+			if (ImGui::Button(_("Change PID")))
+			{
+				Globals::GetPC(true);
+
+				if (Globals::GetPC())
+				{
+					auto PCLoadout = Globals::GetPC()->Member<FFortAthenaLoadout>(_("CosmeticLoadoutPC"));
+					static auto PID = FindObject(_("AthenaPickaxeItemDefinition /Game/Athena/Items/Cosmetics/Pickaxes/Pickaxe_ID_629_MechanicalEngineerSummerFemale.Pickaxe_ID_629_MechanicalEngineerSummerFemale"));
+
+					if (PCLoadout)
+					{
+						if (PID)
+						{
+							Logger::Log(_("PC PID: ") + (*(UObject**)((uintptr_t)PCLoadout + 0x40))->GetFullName());
+							*(UObject**)((uintptr_t)PCLoadout + 0x40) = PID;
+
+							Globals::GetPawn(true);
+
+							if (Globals::GetPawn())
+							{
+								auto PawnBaseLoadout = Globals::GetPawn()->Member<FFortAthenaLoadout>(_("BaseCosmeticLoadout"));
+								auto PawnAppliedLoadout = Globals::GetPawn()->Member<FFortAthenaLoadout>(_("AppliedCosmeticLoadout"));
+								auto PawnCosmeticLoadout = Globals::GetPawn()->Member<FFortAthenaLoadout>(_("CosmeticLoadout"));
+
+								if (PawnBaseLoadout)
+								{
+									Logger::Log(_("BaseLoadout PID: ") + (*(UObject**)((uintptr_t)PawnBaseLoadout + 0x40))->GetFullName());
+									*(UObject**)((uintptr_t)PawnBaseLoadout + 0x40) = PID;
+								}
+
+								if (PawnAppliedLoadout)
+								{
+									Logger::Log(_("AppliedLoadout PID: ") + (*(UObject**)((uintptr_t)PawnAppliedLoadout + 0x40))->GetFullName());
+									*(UObject**)((uintptr_t)PawnAppliedLoadout + 0x40) = PID;
+								}
+
+								if (PawnCosmeticLoadout)
+								{
+									Logger::Log(_("PawnCosmeticLoadout PID: ") + (*(UObject**)((uintptr_t)PawnCosmeticLoadout + 0x40))->GetFullName());
+									*(UObject**)((uintptr_t)PawnCosmeticLoadout + 0x40) = PID;
+								}
+
+								static auto fn = Globals::GetPawn()->Function(_("ApplyCosmeticLoadout"));
+
+								if (fn)
+									Globals::GetPawn()->ProcessEvent(fn, nullptr);
+
+								else
+									std::cout << _("Unable to find ApplyCosmeticLoadout!\n");
+
+								static auto fn2 = Globals::GetPawn()->Function(_("OnRep_BaseCosmeticLoadout"));
+
+								if (fn2)
+								{
+									Globals::GetPawn()->ProcessEvent(fn2, nullptr);
+									Logger::Log(_("Called OnRep_BaseCosmeticLoadout\n"));
+								}
+								
+								else
+									std::cout << _("Unable to find OnRep_BaseCosmeticLoadout!\n");
+							}
+							else
+								std::cout << _("No Pawn was found!\n");
+						}
+						else
+							std::cout << _("Failed to find PID!\n");
+					}
+					else
+						std::cout << _("Unable to find PlayerController's loadout!\n");
+				}
+
+				std::cout << "PID(s) changed!\n";
+			}
+
+			if (ImGui::Button(_("Request Refresh Loadout (DONT USE IN LOBBY)"))) // TODO: Add a check to see if they are in lobby, if they are don't show them this.
+			{
+				Globals::GetPC(true);
+				
+				if (Globals::GetPC())
+				{
+					static auto fn = Globals::GetPC()->Function(_("ServerRequestLoadoutRefresh"));
+					bool bForceRefresh = true;
+
+					if (fn)
+					{
+						Globals::GetPC()->ProcessEvent(fn, &bForceRefresh);
+						Logger::Log("Requested Refresh!");
+					}
+					else
+						std::cout << _("Unable to find ServerRequestLoadoutRefresh!\n");
+				}
+			}
+
+
+			if (ImGui::Button(_("Apply Custom Parts")))
+			{				
+				if (Globals::GetPawn(true))
+				{
+					static auto HeadPart = FindObject(_("CustomCharacterPart /Game/Characters/CharacterParts/Male/Medium/Heads/CP_Athena_Head_M_AshtonMilo.CP_Athena_Head_M_AshtonMilo"));
+					static auto BodyPart = FindObject(_("CustomCharacterPart /Game/Athena/Heroes/Meshes/Bodies/CP_Athena_Body_M_AshtonMilo.CP_Athena_Body_M_AshtonMilo"));
+					
+					Logger::Log(_("ApplyCharacterCosmetics: ") + Helper::Kismet::ApplyCharacterCosmetics(Globals::GetPawn(), BodyPart, HeadPart));
+				}
+			}
+
+			if (ImGui::Button(_("Update CharacterParts")))
+			{
+				if (Globals::GetPawn(true))
+				{
+					static auto fn = Helper::Kismet::GetFortKismet()->Function(_("UpdatePlayerCustomCharacterPartsVisualization"));
+
+					struct {
+						UObject* PlayerState;
+					} params;
+
+					params.PlayerState = *Globals::GetPawn()->Member<UObject*>(_("PlayerState"));
+
+					Helper::Kismet::GetFortKismet()->ProcessEvent(fn, &params);
+
+					Logger::Log(_("Updated CharacterParts!"));
+				}
+			}
+			
+			if (ImGui::Button(_("Set Local Parts")))
+			{
+				if (Globals::GetPawn(true))
+				{
+					auto PlayerState = Globals::GetPawn()->Member<UObject*>(_("PlayerState"));
+
+					if (PlayerState && *PlayerState)
+					{
+						// 	struct UCustomCharacterPart* LocalCharacterParts[0x7]; // 0x598(0x38)
+						UObject*** LocalCharacterParts = (*PlayerState)->Member<UObject**>(_("LocalCharacterParts"));
+
+						if (LocalCharacterParts)
+						{
+							if (*LocalCharacterParts) // the acutal array
+							{
+								if (**LocalCharacterParts) // the first of the array
+								{
+									std::cout << "t\n";
+									std::cout << "First part: " << (**LocalCharacterParts)->GetFullName() << '\n';
+								}
+								else
+									std::cout << _("LocalCharacterParts array is empty!");
+							}
+
+							else
+								std::cout << _("LocalCharacterParts is null!");
+
+						}
+
+						else
+							std::cout << _("Unable to find LocalCharacterParts!");
+					}
+
+					else
+						std::cout << _("Could not find PlayerState");
+				}
+			}
 			break;
 		case 5:
+			if (ImGui::Button(_("Log ProcessEvent")))
+			{
+				bLogProcessEvent = !bLogProcessEvent;
+
+				if (bLogProcessEvent)
+					Logger::Log(_("Started Logging ProcessEvent!"));
+
+				else
+					Logger::Log(_("Stopped logging ProcessEvent!"));
+			}
+			break;
+		case 6:
 		{
 			static ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImGui::TextColored(Color, _("Credits:\n\nMilxnor - Everything"));

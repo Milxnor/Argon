@@ -43,9 +43,12 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 				!FunctionName.contains(_("OnHovered")) &&
 				!FunctionName.contains(_("OnCurrentTextStyleChanged")) &&
 				!FunctionName.contains(_("OnButtonHovered")) &&
-				!FunctionName.contains(_("ExecuteUbergraph_ThreatPostProcessManagerAndParticleBlueprint")))
+				!FunctionName.contains(_("ExecuteUbergraph_ThreatPostProcessManagerAndParticleBlueprint")) &&
+				!FunctionName.contains(_("BlueprintThreadSafeUpdateAnimation")) && 
+				!FunctionName.contains(_("SetContentColorAndOpacity")) &&
+				!FunctionName.contains(_("GetReticleColorOverride")))
 			{
-				Logger::Log(FunctionName + ' ' + Object->GetFullName());
+				Logger::log.WriteToFile(_("ProcessEvent_log.txt"), FunctionName + ' ' + Object->GetFullName());
 			}
 		}
 		
@@ -181,6 +184,28 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			// i would just call begindestroy and finishdestroy but they aren't ufunctions
 			// Helper::CheatManager::Destroy();
 		}
+		
+		else if (FunctionName.contains(_("GetLoadoutForPlayer"))) // idk this never gets called
+		{
+			Object->ProcessEvent(Function, Params);
+
+			struct params {
+				void* MemberUniqueId;
+				FFortAthenaLoadout ReturnValue;
+			};
+
+			auto LoadoutParams = (params*)Params;
+
+			static auto PID = FindObject(_("AthenaPickaxeItemDefinition /Game/Athena/Items/Cosmetics/Pickaxes/Pickaxe_ID_629_MechanicalEngineerSummerFemale.Pickaxe_ID_629_MechanicalEngineerSummerFemale"));
+
+			auto OldPickName = (*(UObject**)((uintptr_t)&LoadoutParams->ReturnValue + 0x40))->GetFullName();
+			*(UObject**)((uintptr_t)&LoadoutParams->ReturnValue + 0x40) = PID;
+
+			Logger::Log(std::format(_("Changed Pickaxe from {} to {}"), OldPickName, PID->GetFullName()));
+
+			return (void*)&LoadoutParams->ReturnValue; // real how processevent works
+		}
+
 	}
 
 	return ProcessEventO(Object, Function, Params);

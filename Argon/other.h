@@ -414,3 +414,8 @@ struct FFortItemEntry
 {
 	char pad[0x1A0];
 };
+
+struct FFortAthenaLoadout
+{
+	char pad[0x150];
+};
