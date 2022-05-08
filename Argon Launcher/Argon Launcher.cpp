@@ -12,6 +12,8 @@
 namespace fs = std::filesystem;
 using namespace nlohmann;
 
+const static auto LauncherVersion = "0.1";
+
 std::wstring widen(const std::string& s)
 {
 	std::vector<wchar_t> buf(MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size() + 1, 0, 0));
@@ -73,9 +75,9 @@ bool NewProcess(const ProcessParams& params)
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	std::cout << _("Starting ") << params.exeName << '\n';
+	// std::cout << _("Starting ") << params.exeName << '\n';
 
-	std::wcout << wpath.c_str() << '\n';
+	// std::wcout << wpath.c_str() << '\n';
 
 	if (!CreateProcessA(fspath.string().c_str(),// const_cast<LPCWSTR>(wpath.c_str()),
 		NULL,// fspath.string(),
@@ -101,8 +103,8 @@ bool NewProcess(const ProcessParams& params)
 			else std::cout << _("Couldn't locate dll to inject!");
 		}
 		WaitForSingleObject(pi.hProcess, INFINITE);
-		// std::cout << GetExitCodeProcess(pi.hProcess, idk what to put here) << std::endl;
-		delete[]wcp; // we may be able to do this earlier but i havent tested.
+
+		delete[]wcp;
 		wcp = 0;
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
@@ -118,8 +120,8 @@ bool NewProcess(const ProcessParams& params)
 		strAppName = path;
 		strAppName = strAppName.substr(strAppName.rfind("\\") + 1);
 
-		Sleep(1000);
-		exit(0);
+		// Sleep(1000);
+		// exit(0);
 	}
 }
 
@@ -204,6 +206,16 @@ std::string ReadFromPastebin(const std::string& Url) // terrible
 }
 
 int main(){
+	auto newestLauncherVersion = ReadFromPastebin(_("https://pastebin.com/raw/mHpSTbRp"));
+	
+	if (newestLauncherVersion == LauncherVersion)
+		std::cout << _("You are up to date!\n");
+	else
+	{
+		std::cout << _("Please download the new launcher in the discord https://discord.gg/JqJDDBFUWn.\n");
+		std::cin.get();
+	}
+	
 	auto fnPath = GetFortnitePath();
 
 	if (!fnPath.contains(_("\\")))
@@ -271,6 +283,9 @@ int main(){
 		DownloadFile(dllPath, ReadFromPastebin(_("https://pastebin.com/raw/3F8QhnQs")));
 
 		NewProcess(fnShipping);
+		
+		std::cout << "\nLaunched Fortnite!\nArgon Discord: https://discord.gg/JqJDDBFUWn.\n";
+	
 		break;
 	}
 	case 2:
@@ -298,4 +313,6 @@ int main(){
 		invalidOption();
 		break;
 	}
+
+	std::cin.get();
 }
