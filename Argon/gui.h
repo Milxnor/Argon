@@ -18,6 +18,9 @@
 #include "util.h"
 #include "helper.h"
 
+static bool bHeadVisible = true;
+static bool bBodyVisible = true;
+
 HRESULT(WINAPI* PresentOriginal)(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_t Flags);
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -118,10 +121,16 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				ImGui::EndTabItem();
 			}
 #endif
+
+			if (ImGui::BeginTabItem(_("Skin")))
+			{
+				Tab = 4;
+				ImGui::EndTabItem();
+			}
 			
 			if (ImGui::BeginTabItem(_("Credits")))
 			{
-				Tab = 4;
+				Tab = 5;
 				ImGui::EndTabItem();
 			}
 
@@ -200,31 +209,66 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				}
 			}
 
-			if (ImGui::Button(_("Set Head Visibility")))
+			if (ImGui::Button(_("Die (doesn't work)")))
 			{
-				Globals::GetPawn(true);
+				// void ServerSuicide(bool bSuppressResurrectionChip, int32_t MatchPlacement); // Function FortniteGame.FortPlayerPawnAthena.ServerSuicide
 
-				auto fn = Globals::GetPawn()->Function(_("SetCharacterPartVisibility"));
+				if (Globals::GetPawn(true))
+				{
+					static auto fn = Globals::GetPawn(true)->Function(_("ServerSuicide"));
 
-				struct {
-					EFortCustomPartType InPartType;
-					bool bNewVisibility;
-					bool bPropagateToChildren;
-					bool ReturnValue;
-				} params;
+					if (fn)
+					{
+						struct {
+							bool bSuppressResurrectionChip;
+							int32_t MatchPlacement;
+						} params{};
 
-				params.InPartType = EFortCustomPartType::Head;
-				params.bNewVisibility = false;
-				params.bPropagateToChildren = true;
-				
-				Globals::GetPawn()->ProcessEvent(fn, &params);
+						params.bSuppressResurrectionChip = false;
+						params.MatchPlacement = 1;
+
+						Globals::GetPawn()->ProcessEvent(fn, &params);
+					}
+
+					else
+						std::cout << _("Unable to find ServerSuicide function\n");
+				}
+				else
+					std::cout << _("Unable to find Pawn!\n");
 			}
 		
 			break;
 #endif
 		case 4:
+			if (ImGui::Button(_("Set Head Visibility")))
+			{
+				bHeadVisible = !bHeadVisible;
+
+				if (!Helper::SetCharacterPartVisibility(EFortCustomPartType::Head, bHeadVisible))
+					std::cout << _("Failed to set head visibility!\n");
+
+				if (bBodyVisible)
+					std::cout << _("Head is now visible\n");
+				else
+					std::cout << _("Head is now invisible\n");
+			}
+
+			if (ImGui::Button(_("Set Body Visibility")))
+			{
+				bBodyVisible = !bBodyVisible;
+				
+				if (!Helper::SetCharacterPartVisibility(EFortCustomPartType::Body, bBodyVisible))
+					std::cout << _("Failed to set body visibility!\n");
+				
+				if (bBodyVisible)
+					std::cout << _("Body is now visible\n");
+				else
+					std::cout << _("Body is now invisible\n");
+			}
+			break;
+		case 5:
 		{
-			ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			static ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImGui::TextColored(Color, _("Credits:\n\nMilxnor - Everything"));
 			break;
 		}

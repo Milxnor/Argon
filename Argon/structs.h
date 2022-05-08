@@ -896,3 +896,10 @@ bool Setup(void* ProcessEventHookAddr)
 	else
 		ObjObjects = decltype(ObjObjects)(ObjectsAddr);
 }
+
+struct FActorSpawnParameters
+{
+	unsigned char Unk00[0x40];
+};
+
+static UObject* (*SpawnActorO)(UObject* UWorld, UObject* Class, FTransform const* UserTransformPtr, const FActorSpawnParameters& SpawnParameters);

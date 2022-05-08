@@ -159,6 +159,18 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 					Helper::Console::Say(helpStr.c_str());
 				}
 
+				else if (ScriptName == _("testspawnscar"))
+				{
+					if (Globals::GetPawn(true))
+					{
+						static auto ScarDef = FindObject(_("FortWeaponRangedItemDefinition /Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03"));
+						Helper::SpawnPickup(ScarDef, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset, Globals::GetPawn());
+					}
+					
+					else
+						std::cout << _("Failed to get Pawn!\n");
+				}
+
 				else
 					Helper::Console::Say(_(L"Unrecognized command."));
 			}
@@ -167,7 +179,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 		else if (FunctionName.contains(_("LoadingScreen"))) // this is cursed but it works // this gets called after "we are connecting to anotehr server"
 		{
 			// i would just call begindestroy and finishdestroy but they aren't ufunctions
-			Helper::CheatManager::Destroy();
+			// Helper::CheatManager::Destroy();
 		}
 	}
 

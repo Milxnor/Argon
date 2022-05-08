@@ -93,6 +93,22 @@ namespace Helper
 
             return params.ReturnValue;
         }
+
+        UObject* SpawnActor(UObject* Class, FVector Location, FRotator Rotation = FRotator())
+        {
+            FQuat SpawnQuat{};
+            SpawnQuat.W = 0;
+            SpawnQuat.X = Rotation.Pitch;
+            SpawnQuat.Y = Rotation.Roll;
+            SpawnQuat.Z = Rotation.Yaw;
+
+            FTransform SpawnTrans{};
+            SpawnTrans.Scale3D = FVector(1, 1, 1);
+            SpawnTrans.Translation = Location;
+            SpawnTrans.Rotation = SpawnQuat;
+
+            return SpawnActorO(Globals::GetWorld(true), Class, &SpawnTrans, FActorSpawnParameters());
+        }
     }
 
     namespace Console
@@ -256,5 +272,86 @@ namespace Helper
     void ChangePart()
     {
 		
+    }
+
+    bool SetCharacterPartVisibility(EFortCustomPartType Part, bool bVisible = false)
+    {
+        if (!Globals::GetPawn(true))
+            return false;
+
+        static auto fn = Globals::GetPawn()->Function(_("SetCharacterPartVisibility"));
+
+        struct {
+            EFortCustomPartType InPartType;
+            bool bNewVisibility;
+            bool bPropagateToChildren;
+            bool ReturnValue;
+        } params{};
+
+        params.InPartType = Part;
+        params.bNewVisibility = bVisible;
+        params.bPropagateToChildren = true;
+
+        Globals::GetPawn()->ProcessEvent(fn, &params);
+
+        return params.ReturnValue;
+    }
+
+    FVector GetActorLocation(UObject* Actor)
+    {
+        static auto fn = Actor->Function(_("K2_GetActorLocation"));
+
+        if (!fn)
+            return FVector();
+
+        FVector Ret;
+        Actor->ProcessEvent(fn, &Ret);
+
+        return Ret;
+    }
+
+    void SpawnPickup(UObject* ItemDef, int Count, EFortPickupSourceTypeFlag Flags, EFortPickupSpawnSource Src, UObject* Pawn)
+    {
+        if (!ItemDef)
+            return
+
+        auto summonLoc = GetActorLocation(Pawn);
+        auto Pickup = Easy::SpawnActor(FindObject(_("Class /Script/FortniteGame.FortPickupAthena")), summonLoc);
+
+        auto PickupEntry = Pickup->Member<FFortItemEntry>(_("PrimaryPickupItemEntry"));
+
+        if (!PickupEntry)
+        {
+            std::cout << _("Unable to find ItemEntry!\n");
+            return;
+        }
+
+        *reinterpret_cast<UObject**>((uintptr_t)PickupEntry + 0x18) = ItemDef;
+        *reinterpret_cast<int*>((uintptr_t)PickupEntry + 0x0c) = Count;
+
+        static auto PrimaryPickupItemEntryFn = Pickup->Function(_("OnRep_PrimaryPickupItemEntry"));
+        static auto TossPickupFn = Pickup->Function(_("TossPickup"));
+
+        struct
+        {
+            FVector FinalLocation;
+            UObject* Pawn;
+            int32_t OverrideMaxStackCount;
+            bool bToss;
+            bool bShouldCombinePickupsWhenTossCompletes;
+            EFortPickupSourceTypeFlag InPickupSourceTypeFlags;
+            EFortPickupSpawnSource InPickupSpawnSource;
+        } params{};
+
+        params.FinalLocation = GetActorLocation(Pawn);
+        params.bToss = true;
+        params.bShouldCombinePickupsWhenTossCompletes = true;
+        params.Pawn = Pawn;
+        params.OverrideMaxStackCount = 999;
+        params.InPickupSourceTypeFlags = Flags;
+        params.InPickupSpawnSource = Src;
+
+        Pickup->ProcessEvent(PrimaryPickupItemEntryFn, nullptr);
+        Pickup->ProcessEvent(TossPickupFn, &params);
     }
 }
