@@ -199,6 +199,26 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 					}
 				}
 			}
+
+			if (ImGui::Button(_("Set Head Visibility")))
+			{
+				Globals::GetPawn(true);
+
+				auto fn = Globals::GetPawn()->Function(_("SetCharacterPartVisibility"));
+
+				struct {
+					EFortCustomPartType InPartType;
+					bool bNewVisibility;
+					bool bPropagateToChildren;
+					bool ReturnValue;
+				} params;
+
+				params.InPartType = EFortCustomPartType::Head;
+				params.bNewVisibility = false;
+				params.bPropagateToChildren = true;
+				
+				Globals::GetPawn()->ProcessEvent(fn, &params);
+			}
 		
 			break;
 #endif
