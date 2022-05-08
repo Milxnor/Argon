@@ -7,6 +7,8 @@
 #include <fstream>
 #include <json.hpp>
 
+#pragma comment(lib, "urlmon.lib")
+
 namespace fs = std::filesystem;
 using namespace nlohmann;
 
@@ -163,6 +165,44 @@ std::string GetFortnitePath()
 	return _("Could not find ProgramData!");
 }
 
+auto DownloadFile(const std::string& savePath, const std::string& Url)
+{
+	return URLDownloadToFileA(NULL, Url.c_str(), savePath.c_str(), 0, NULL);
+}
+
+std::string ReadFromPastebin(const std::string& Url) // terrible
+{
+	std::string argonPath = _("C:\\Argon");
+	
+	if (!fs::exists(argonPath))
+		fs::create_directory(argonPath);
+
+	static auto temp = argonPath + _("\\temp.txt");
+	
+	if (fs::exists(temp))
+		fs::remove(temp);
+	
+	DownloadFile(temp, Url);
+	
+	if (!fs::exists(temp))
+	{
+		std::cout << "Could not download file! Error: " << GetLastError() << '\n';
+		return "";
+	}
+
+	std::ifstream input_file(temp);
+
+	if (!input_file.is_open()) return "";
+
+	auto data = std::string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+
+	input_file.close();
+
+	fs::remove(temp);
+
+	return data;
+}
+
 int main(){
 	auto fnPath = GetFortnitePath();
 
@@ -178,8 +218,10 @@ int main(){
 [1] - Launch
 )");
 
-	if (fs::exists(fnPath + _("Original Anticheats")))
-		options += _("[2] - Restore Anticheats\n");
+	auto ogAnticheats = fnPath + _("Original Anticheats\\");
+
+	if (fs::exists(ogAnticheats))
+		options += _("[2] - Revert to old Fortnite\n");
 
 	std::cout << options << "\n";
 	
@@ -195,6 +237,10 @@ int main(){
 		std::cin.get();
 	};
 
+	static auto bePath = fnPath + _("FortniteClient-Win64-Shipping_BE.exe");
+	static auto eacPath = fnPath + _("FortniteClient-Win64-Shipping_EAC.exe");
+	static auto dllPath = fnPath + _("Argon.dll");
+	
 	switch (opt)
 	{
 	case 1:
@@ -202,12 +248,51 @@ int main(){
 		ProcessParams fnShipping;
 		fnShipping.exeName = fnPath + _("FortniteClient-Win64-Shipping.exe");
 		fnShipping.exeIsFullPath = true;
+		
+		if (!fs::exists(ogAnticheats))
+		{
+			fs::create_directory(ogAnticheats);
+
+			if (!isFakeAnticheat(bePath))
+				fs::rename(bePath, ogAnticheats + _("FortniteClient-Win64-Shipping_BE.exe"));
+
+			if (!isFakeAnticheat(eacPath))
+				fs::rename(eacPath, ogAnticheats + _("FortniteClient-Win64-Shipping_EAC.exe"));
+
+			auto acLink = ReadFromPastebin(_("https://pastebin.com/raw/rHjcEXXc"));
+			
+			DownloadFile(bePath, acLink);
+			DownloadFile(eacPath, acLink);
+		}
+
+		if (fs::exists(dllPath));
+			fs::remove(dllPath);
+		
+		DownloadFile(dllPath, ReadFromPastebin(_("https://pastebin.com/raw/3F8QhnQs")));
+
 		NewProcess(fnShipping);
 		break;
 	}
 	case 2:
 		if (!options.contains(_("2")))
 			invalidOption();
+
+		if (fs::exists(bePath) && fs::exists(ogAnticheats + _("FortniteClient-Win64-Shipping_BE.exe")))
+			fs::remove(bePath);
+
+		if (fs::exists(eacPath) && fs::exists(ogAnticheats + _("FortniteClient-Win64-Shipping_EAC.exe")))
+			fs::remove(eacPath);
+		
+		fs::rename(ogAnticheats + _("FortniteClient-Win64-Shipping_BE.exe"), bePath);
+		fs::rename(ogAnticheats + _("FortniteClient-Win64-Shipping_EAC.exe"), eacPath);
+		
+		fs::remove(ogAnticheats);
+		
+		if (fs::exists(dllPath))
+			fs::remove(dllPath);
+
+		std::cout << _("Finished replacing anticheats and deleted dll!\n");
+		
 		break;
 	default:
 		invalidOption();

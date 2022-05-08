@@ -6,25 +6,6 @@
 #include "helper.h"
 #include "gui.h"
 
-static bool bHasSetup = false;
-
-DWORD WINAPI Startup(LPVOID)
-{
-    if (bHasSetup)
-        return 0;
-	
-    CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
-    // CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
-
-    Sleep(1500);
-
-    Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
-
-    bHasSetup = true;
-
-    return 0;
-}
-
 DWORD WINAPI Input(LPVOID)
 {
     while (1)

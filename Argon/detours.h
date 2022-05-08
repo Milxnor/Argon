@@ -7,6 +7,25 @@
 
 static bool bLogProcessEvent = false;
 
+static bool bHasSetup = false;
+
+DWORD WINAPI Startup(LPVOID)
+{
+	if (bHasSetup)
+		return 0;
+
+	CreateThread(0, 0, Helper::Console::Setup, 0, 0, 0);
+	// CreateThread(0, 0, Helper::CheatManager::Setup, 0, 0, 0);
+
+	Sleep(1500);
+
+	Helper::Console::Say(_(L"Welcome to Argon.\n\nKeybinds:\nF9 - Dump Objects\nF8 - Opens GUI.\nF4 - Check CheatManager Status\nF3 - Make CheatManager\ncheatscript Help - CheatScript Commands\n\nDiscord Invite: https://discord.gg/JqJDDBFUWn."));
+
+	bHasSetup = true;
+
+	return 0;
+}
+
 void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 {	
 	if (Object && Function)
@@ -56,8 +75,11 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			return nullptr;
 
 		else if (FunctionName.contains(_("ServerLoadingScreenDropped")))
+		{
+			CreateThread(0, 0, Startup, 0, 0, 0);
 			Globals::GetWorld(true);
-
+		}
+		
 		else if (FunctionName.contains(_("ServerGiveCreativeItem")))
 		{
 			struct params {
@@ -183,6 +205,7 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 		{
 			// i would just call begindestroy and finishdestroy but they aren't ufunctions
 			// Helper::CheatManager::Destroy();
+
 		}
 		
 		else if (FunctionName.contains(_("GetLoadoutForPlayer"))) // idk this never gets called
@@ -242,7 +265,7 @@ std::vector<std::string> URLs =
 	_("/fortnite/api/game/v2/profile"), _("/fortnite/api/v2/versioncheck/"), _("/fortnite/api/cloudstorage/system")
 };
 
-#define HOST _("http://localhost:3551")
+#define HOST _("https://LawinServer.milxnor.repl.co")
 
 CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 {
