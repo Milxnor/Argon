@@ -398,7 +398,6 @@ namespace Helper
             EFortPickupSourceTypeFlag InPickupSourceTypeFlags;
             EFortPickupSpawnSource InPickupSpawnSource;
         } params{};
-
         params.FinalLocation = GetActorLocation(Pawn);
         params.bToss = true;
         params.bShouldCombinePickupsWhenTossCompletes = true;

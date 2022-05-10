@@ -706,6 +706,8 @@ FString(*GetEngineVersion)();
 
 // TODO: There is this 1.9 function, 48 8D 05 D9 51 22 03. It has the CL and stuff. We may be able to determine the version using the CL.
 
+static bool bIsS13 = false;
+
 bool Setup(void* ProcessEventHookAddr)
 {
 	uint64_t ToStringAddr = 0;
@@ -895,6 +897,9 @@ bool Setup(void* ProcessEventHookAddr)
 		OldObjects = decltype(OldObjects)(ObjectsAddr);
 	else
 		ObjObjects = decltype(ObjObjects)(ObjectsAddr);
+
+	if (FnVerDouble == 13.40)
+		bIsS13 = true;
 }
 
 struct FActorSpawnParameters

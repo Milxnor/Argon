@@ -228,12 +228,13 @@ int main(){
 	
     std::string options = _(R"(
 [1] - Launch
+[2] - Launch S13
 )");
 
 	auto ogAnticheats = fnPath + _("Original Anticheats\\");
 
 	if (fs::exists(ogAnticheats))
-		options += _("[2] - Revert to old Fortnite\n");
+		options += _("[3] - Revert to old Fortnite\n");
 
 	std::cout << options << "\n";
 	
@@ -289,6 +290,9 @@ int main(){
 		break;
 	}
 	case 2:
+		std::cout << "Coming soon!";
+		break;
+	case 3:
 		if (!options.contains(_("2")))
 			invalidOption();
 
