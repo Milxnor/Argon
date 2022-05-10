@@ -34,24 +34,38 @@ ID3D11RenderTargetView* mainRenderTargetView;
 static bool bHasInit = false;
 static bool bShow = false;
 
-LRESULT __stdcall WndProc(const HWND hWnd, uint32_t uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT __stdcall WndProc(const HWND hWnd, uint32_t message, WPARAM wParam, LPARAM lParam)
 {
-	if (uMsg == WM_KEYUP && (wParam == VK_F8 || (bShow && wParam == VK_ESCAPE)))
+	switch (message)
 	{
-		bShow = !bShow;
-		ImGui::GetIO().MouseDrawCursor = bShow;
+	case WM_KEYUP:
+		if (wParam == VK_F8 || (bShow && wParam == VK_ESCAPE))
+		{
+			bShow = !bShow;
+			ImGui::GetIO().MouseDrawCursor = bShow;
+		}
+		break;
+	case WM_SIZE:
+		if (pDevice && wParam != SIZE_MINIMIZED)
+		{
+			
+		}
+		break;
+	case WM_QUIT:
+		if (bShow)
+			ExitProcess(0);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
 	}
-	
-	else if (uMsg == WM_QUIT && bShow)
-		ExitProcess(0);
 
 	if (bShow)
 	{
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+		ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 		return TRUE;
 	}
 
-	return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+	return CallWindowProc(oWndProc, hWnd, message, wParam, lParam);
 }
 
 HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_t Flags)
