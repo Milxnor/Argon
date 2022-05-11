@@ -12,7 +12,7 @@
 namespace fs = std::filesystem;
 using namespace nlohmann;
 
-const static auto LauncherVersion = "0.1";
+const static auto LauncherVersion = _("0.1");
 
 std::wstring widen(const std::string& s)
 {
@@ -188,7 +188,7 @@ std::string ReadFromPastebin(const std::string& Url) // terrible
 	
 	if (!fs::exists(temp))
 	{
-		std::cout << "Could not download file! Error: " << GetLastError() << '\n';
+		std::cout << _("Could not download file! Error: ") << GetLastError() << '\n';
 		return "";
 	}
 
@@ -285,12 +285,12 @@ int main(){
 
 		NewProcess(fnShipping);
 		
-		std::cout << "\nLaunched Fortnite!\nArgon Discord: https://discord.gg/JqJDDBFUWn.\n";
+		std::cout << _("\nLaunched Fortnite!\nArgon Discord: https://discord.gg/JqJDDBFUWn.\n");
 	
 		break;
 	}
 	case 2:
-		std::cout << "Coming soon!";
+		std::cout << _("Coming soon!");
 		break;
 	case 3:
 		if (!options.contains(_("2")))
