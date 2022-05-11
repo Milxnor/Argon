@@ -237,7 +237,19 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 			
 			auto EmoteParams = (params*)Params;
 
-			std::cout << "Emote: " << EmoteParams->AssetName.ToString() << '\n';
+			std::cout << _("Emote: ") << EmoteParams->AssetName.ToString() << '\n';
+		}
+
+		else if (FunctionName.contains(_("ServerCreateBuildingActor")))
+		{
+			struct params {
+				FCreateBuildingActorData data;
+			};
+			auto SCBA = (params*)Params;
+
+			auto data = SCBA->data;
+			
+			// std::cout << _("Building: ") << data.BuildingClassData.BuildingClass->GetFullName() << '\n';
 		}
 	}
 

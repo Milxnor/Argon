@@ -468,7 +468,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))
 			{
-				Helper::CreateBuildingActor(FindObject(_("Class /Script/FortniteGame.BuildingRift")), 2);
+				Helper::CreateBuildingActor(FindObject(_("Class /Script/FortniteGame.BuildingFoundationSlab")), 1);
 				std::cout << _("Done!\n");
 			}
 			break;
