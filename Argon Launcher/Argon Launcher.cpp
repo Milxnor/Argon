@@ -210,6 +210,7 @@ int main(){
 	
 	if (newestLauncherVersion == LauncherVersion)
 		std::cout << _("You are up to date!\n");
+	
 	else
 	{
 		std::cout << _("Please download the new launcher in the discord https://discord.gg/JqJDDBFUWn.\n");
