@@ -70,13 +70,18 @@ DWORD WINAPI Main(LPVOID)
 
     std::cout << Ascii << "\n\n";
 
-    Logger::Log(std::format(_("Setting up Argon v{}. Made by Milxnor#3531."), ArgonVersion));
-
     if (!Setup(ProcessEventDetour))
     {
-		MessageBoxA(0, _("Failed to setup."), _("Argon"), MB_ICONERROR);
-		FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
+        MessageBoxA(0, _("Failed to setup."), _("Argon"), MB_ICONERROR);
+        FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
     }
+
+    std::string additionalMessage = "";
+
+    if (bIsS13)
+        additionalMessage = _(" for S13");
+
+    Logger::Log(std::format(_("Setting up Argon v{}{}. Made by Milxnor#3531."), ArgonVersion, additionalMessage));
     
 #if DEVELOPMENT == 0
     if (!FindObject(_("FortEngine_")))

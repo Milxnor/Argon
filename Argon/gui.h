@@ -17,6 +17,7 @@
 
 #include "util.h"
 #include "helper.h"
+#include "commands.h"
 
 static bool bHeadVisible = true;
 static bool bBodyVisible = true;
@@ -114,8 +115,9 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 		static float currentFOV = 80;
 		static float FOV = 80;
 		static char WID[60] = {};
+		static bool bConsoleIsOpen = false;
 
-		if (ImGui::BeginTabBar("")) { // Figure out what tab they are on
+		if (ImGui::BeginTabBar("")) { // Figure out what tab they are on // Creative Bar??
 			if (ImGui::BeginTabItem(_("Player")))
 			{
 				Tab = 1;
@@ -153,10 +155,16 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				Tab = 6;
 				ImGui::EndTabItem();
 			}
+
+			if (ImGui::BeginTabItem(_("Console")))
+			{
+				Tab = 7;
+				ImGui::EndTabItem();
+			}
 			
 			if (ImGui::BeginTabItem(_("Credits")))
 			{
-				Tab = 7;
+				Tab = 8;
 				ImGui::EndTabItem();
 			}
 
@@ -473,6 +481,9 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			}
 			break;
 		case 7:
+			ShowExampleAppConsole(&bConsoleIsOpen);
+			break;
+		case 8:
 		{
 			static ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImGui::TextColored(Color, _("Credits:\n\nMilxnor - Everything"));

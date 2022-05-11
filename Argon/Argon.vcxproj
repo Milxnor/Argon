@@ -105,6 +105,7 @@
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="commands.h" />
     <ClInclude Include="detours.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="gui.h" />

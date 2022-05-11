@@ -287,7 +287,7 @@ std::vector<std::string> URLs =
 	_("/fortnite/api/game/v2/profile"), _("/fortnite/api/v2/versioncheck/"), _("/fortnite/api/cloudstorage/system")
 };
 
-#define HOST _("https://LawinServer.milxnor.repl.co")
+#define HOST _("https://lawinserver.milxnor.repl.co")
 
 CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 {
