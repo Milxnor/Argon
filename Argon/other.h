@@ -419,3 +419,23 @@ struct FFortAthenaLoadout
 {
 	char pad[0x150];
 };
+
+// ScriptStruct FortniteGame.BuildingClassData
+// Size: 0x10 (Inherited: 0x00)
+struct FBuildingClassData {
+	struct UObject* BuildingClass; // 0x00(0x08)
+	int32_t PreviousBuildingLevel; // 0x08(0x04)
+	char UpgradeLevel; // 0x0c(0x01)
+	char pad_D[0x3]; // 0x0d(0x03)
+};
+
+struct FCreateBuildingActorData {
+	uint32_t BuildingClassHandle; // 0x00(0x04)
+	FVector BuildLoc; // 0x04(0x0c)
+	FRotator BuildRot; // 0x10(0x0c)
+	bool bMirrored; // 0x1c(0x01)
+	char pad_1D[0x3]; // 0x1d(0x03)
+	float SyncKey; // 0x20(0x04)
+	char pad_24[0x4]; // 0x24(0x04)
+	FBuildingClassData BuildingClassData; // 0x28(0x10)
+};

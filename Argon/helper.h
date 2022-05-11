@@ -406,8 +406,25 @@ namespace Helper
         params.InPickupSourceTypeFlags = Flags;
         params.InPickupSpawnSource = Src;
 
-        Pickup->ProcessEvent(PrimaryPickupItemEntryFn, nullptr);
+        if (Pickup && PrimaryPickupItemEntryFn)
+            Pickup->ProcessEvent(PrimaryPickupItemEntryFn, nullptr);
+		
         if (Pickup && TossPickupFn)
             Pickup->ProcessEvent(TossPickupFn, &params);
+    }
+
+    void CreateBuildingActor(UObject* BuildingClass, char UpgradeLevel)
+    {
+        FCreateBuildingActorData data{};
+        FBuildingClassData classData{};
+        classData.BuildingClass = BuildingClass;
+        data.BuildingClassData = classData;
+        data.BuildRot = FRotator();
+        classData.UpgradeLevel = UpgradeLevel;
+        data.BuildLoc = GetActorLocation(Globals::GetPawn(true));
+        
+		static auto fn = Globals::GetPC()->Function(_("ServerCreateBuildingActor"));
+
+        Globals::GetPC()->ProcessEvent(fn, &data);
     }
 }

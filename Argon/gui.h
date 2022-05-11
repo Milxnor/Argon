@@ -148,9 +148,15 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				ImGui::EndTabItem();
 			}
 			
-			if (ImGui::BeginTabItem(_("Credits")))
+			if (ImGui::BeginTabItem(_("Actors")))
 			{
 				Tab = 6;
+				ImGui::EndTabItem();
+			}
+			
+			if (ImGui::BeginTabItem(_("Credits")))
+			{
+				Tab = 7;
 				ImGui::EndTabItem();
 			}
 
@@ -192,7 +198,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 
 			if (ImGui::Button(_("Change Head")))
 			{
-				std::cout << "Pawn: " << Globals::GetPawn(true)->GetFullName() << '\n';
+				std::cout << _("Pawn: ") << Globals::GetPawn(true)->GetFullName() << '\n';
 
 				auto head = FindObject(_("CustomCharacterPart /Game/Athena/Heroes/Meshes/Heads/Dev_TestAsset_Head_M_XL.Dev_TestAsset_Head_M_XL"));
 
@@ -460,6 +466,13 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			}
 			break;
 		case 6:
+			if (ImGui::Button(_("Test spawn building actor")))
+			{
+				Helper::CreateBuildingActor(FindObject(_("Class /Script/FortniteGame.BuildingRift")), 2);
+				std::cout << _("Done!\n");
+			}
+			break;
+		case 7:
 		{
 			static ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImGui::TextColored(Color, _("Credits:\n\nMilxnor - Everything"));
