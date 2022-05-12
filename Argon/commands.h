@@ -11,9 +11,9 @@
 struct ImGUIConsole
 {
     char InputBuf[256];
-    ImVector<char*> Items;
-    ImVector<const char*> Commands;
-    ImVector<char*> History;
+    std::vector<std::string> Items;
+    std::vector<std::string> Commands;
+    std::vector <std::string> History;
     int HistoryPos;
     ImGuiTextFilter Filter;
     bool AutoScroll;
@@ -37,21 +37,10 @@ struct ImGUIConsole
     ~ImGUIConsole()
     {
         ClearLog();
-        for (int i = 0; i < History.Size; i++)
-            free(History[i]);
     }
-
-    // Portable helpers
-    static int   Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
-    static int   Strnicmp(const char* s1, const char* s2, int n) { int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; n--; } return d; }
-    static char* Strdup(const char* s) { IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); return (char*)memcpy(buf, (const void*)s, len); }
-    static void  Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
-
+	
     void ClearLog()
-    {
-        for (int i = 0; i < Items.Size; i++)
-            free(Items[i]);
-		
+    {	
         Items.clear();
     }
 
@@ -64,8 +53,12 @@ struct ImGUIConsole
         vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
         buf[IM_ARRAYSIZE(buf) - 1] = 0;
         va_end(args);
-        Items.push_back(Strdup(buf));
+        Items.push_back(buf);
     }
+
+    static void  Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
+    static int   Strnicmp(const char* s1, const char* s2, int n) { int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; n--; } return d; }
+    static int   Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
 
     void Show(bool* p_open)
     {
@@ -88,7 +81,7 @@ struct ImGUIConsole
 
         ImGui::TextWrapped(_("Enter 'HELP' for help."));
 
-        if (ImGui::SmallButton(_("Add Debug Text"))) { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
+        if (ImGui::SmallButton(_("Add Debug Text"))) { AddLog("%d some text", Items.size()); AddLog("some more text"); AddLog("display very important message here!"); }
         ImGui::SameLine();
 		
         if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
@@ -126,29 +119,17 @@ struct ImGUIConsole
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
         if (copy_to_clipboard)
             ImGui::LogToClipboard();
-        for (int i = 0; i < Items.Size; i++)
+        for (auto item : Items)
         {
-            const char* item = Items[i];
-            if (!Filter.PassFilter(item))
+            if (!Filter.PassFilter(item.c_str()))
                 continue;
-
-            // Normally you would store more information in your item than just a string.
-            // (e.g. make Items[] an array of structure, store color/type etc.)
-            ImVec4 color;
-            bool has_color = false;
-            if (strstr(item, _("[error]"))) { color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); has_color = true; }
-            else if (strncmp(item, _("# "), 2) == 0) { color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f); has_color = true; }
-            if (has_color)
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
-            ImGui::TextUnformatted(item);
-            if (has_color)
-                ImGui::PopStyleColor();
         }
         if (copy_to_clipboard)
             ImGui::LogFinish();
 
         if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
             ImGui::SetScrollHereY(1.0f);
+		
         ScrollToBottom = false;
 
         ImGui::PopStyleVar();
@@ -186,14 +167,13 @@ struct ImGUIConsole
         // Insert into history. First find match and delete it so it can be pushed to the back.
         // This isn't trying to be smart or optimal.
         HistoryPos = -1;
-        for (int i = History.Size - 1; i >= 0; i--)
-            if (Stricmp(History[i], command_line) == 0)
+        for (int i = History.size() - 1; i >= 0; i--)
+            if (Stricmp(History[i].c_str(), command_line) == 0)
             {
-                free(History[i]);
                 History.erase(History.begin() + i);
                 break;
             }
-        History.push_back(Strdup(command_line));
+        History.push_back(command_line);
 
         std::string cmd = command_line;
 
@@ -207,13 +187,13 @@ struct ImGUIConsole
         {
             AddLog(_("Commands:"));
 			
-            for (int i = 0; i < Commands.Size; i++)
+            for (int i = 0; i < Commands.size(); i++)
                 AddLog(_("- % s"), Commands[i]);
         }
         else if (cmd == _("HISTORY"))
         {
-            int first = History.Size - 10;
-            for (int i = first > 0 ? first : 0; i < History.Size; i++)
+            int first = History.size() - 10;
+            for (int i = first > 0 ? first : 0; i < History.size(); i++)
                 AddLog(_("%3d: %s\n"), i, History[i]);
         }
 
@@ -260,9 +240,10 @@ struct ImGUIConsole
 
             // Build a list of candidates
             ImVector<const char*> candidates;
-            for (int i = 0; i < Commands.Size; i++)
-                if (Strnicmp(Commands[i], word_start, (int)(word_end - word_start)) == 0)
-                    candidates.push_back(Commands[i]);
+			
+            for (int i = 0; i < Commands.size(); i++)
+                if (Strnicmp(Commands[i].c_str(), word_start, (int)(word_end - word_start)) == 0)
+                    candidates.push_back(Commands[i].c_str());
 
             if (candidates.Size == 0)
             {
@@ -318,21 +299,21 @@ struct ImGUIConsole
             if (data->EventKey == ImGuiKey_UpArrow)
             {
                 if (HistoryPos == -1)
-                    HistoryPos = History.Size - 1;
+                    HistoryPos = History.size() - 1;
                 else if (HistoryPos > 0)
                     HistoryPos--;
             }
             else if (data->EventKey == ImGuiKey_DownArrow)
             {
                 if (HistoryPos != -1)
-                    if (++HistoryPos >= History.Size)
+                    if (++HistoryPos >= History.size())
                         HistoryPos = -1;
             }
 
             // A better implementation would preserve the data on the current input line along with cursor position.
             if (prev_history_pos != HistoryPos)
             {
-                const char* history_str = (HistoryPos >= 0) ? History[HistoryPos] : "";
+                const char* history_str = ((HistoryPos >= 0) ? History[HistoryPos] : "").c_str();
                 data->DeleteChars(0, data->BufTextLen);
                 data->InsertChars(0, history_str);
             }

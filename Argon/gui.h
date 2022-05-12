@@ -481,7 +481,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			}
 			break;
 		case 7:
-			ShowExampleAppConsole(&bConsoleIsOpen);
+			ShowConsole(&bConsoleIsOpen);
 			break;
 		case 8:
 		{
