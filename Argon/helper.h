@@ -300,6 +300,43 @@ namespace Helper
         {
             return Globals::GetWorld()->GetFullName() == _("World /Game/Creative/Maps/Creative_NoApollo_Terrain.Creative_NoApollo_Terrain");
         }
+
+        static void GiveItem(FFortItemEntry entry)
+        {
+            struct {
+                FFortItemEntry CreativeItem;
+                FGuid ItemToRemoveGuid;
+            } params{};
+
+            params.CreativeItem = entry;
+            params.ItemToRemoveGuid = FGuid();
+
+            static auto fn = Globals::GetPC(true)->Function(_("ServerGiveCreativeItem"));
+            Globals::GetPC()->ProcessEvent(fn, &params);
+        }
+
+        static void GiveItem(UObject* ItemDef)
+        {
+            struct {
+                FFortItemEntry CreativeItem;
+                FGuid ItemToRemoveGuid;
+            } params{};
+
+            FFortItemEntry newEntry = {};
+            newEntry.bIsReplicatedCopy = true;
+            newEntry.Durability = 1;
+            newEntry.Count = 1;
+            newEntry.Count = 1;
+            newEntry.LoadedAmmo = 999;
+            newEntry.Level = 1;
+            newEntry.ItemDefinition = ItemDef;
+
+            params.CreativeItem = newEntry;
+            params.ItemToRemoveGuid = FGuid();
+
+            static auto fn = Globals::GetPC(true)->Function(_("ServerGiveCreativeItem"));
+            Globals::GetPC()->ProcessEvent(fn, &params);
+        }
     }
 
     auto ChangeRole(UObject* Actor, ENetRole Role, bool bLocal = true)

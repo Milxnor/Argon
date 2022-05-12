@@ -410,9 +410,40 @@ enum class EFortPickupSpawnSource : uint8_t
 	EFortPickupSpawnSource_MAX = 11
 };
 
-struct FFortItemEntry
-{
-	char pad[0x1A0];
+struct FFastArraySerializerItem {
+	int32_t ReplicationID; // 0x00(0x04)
+	int32_t ReplicationKey; // 0x04(0x04)
+	int32_t MostRecentArrayReplicationKey; // 0x08(0x04)
+};
+
+struct FFortItemEntry : FFastArraySerializerItem {
+	int32_t Count; // 0x0c(0x04)
+	int32_t PreviousCount; // 0x10(0x04)
+	char pad_14[0x4]; // 0x14(0x04)
+	struct UObject* ItemDefinition; // 0x18(0x08)
+	int16_t OrderIndex; // 0x20(0x02)
+	char pad_22[0x2]; // 0x22(0x02)
+	float Durability; // 0x24(0x04)
+	int32_t Level; // 0x28(0x04)
+	int32_t LoadedAmmo; // 0x2c(0x04)
+	int32_t PhantomReserveAmmo; // 0x30(0x04)
+	char pad_34[0x4]; // 0x34(0x04)
+	// struct TArray<struct FString> AlterationDefinitions; // 0x38(0x10)
+	char pad_38[0x10];
+	char pad_48[0x10];
+	// struct FString ItemSource; // 0x58(0x10)
+	char pad_58[0x10];
+	struct FGuid ItemGuid; // 0x68(0x10)
+	struct FGuid TrackerGuid; // 0x78(0x10)
+	struct FGuid ItemVariantGuid; // 0x88(0x10)
+	int32_t ControlOverride; // 0x98(0x04)
+	bool inventory_overflow_date; // 0x9c(0x01)
+	bool bWasGifted; // 0x9d(0x01)
+	bool bIsReplicatedCopy; // 0x9e(0x01)
+	bool bIsDirty; // 0x9f(0x01)
+	bool bUpdateStatsOnCollection; // 0xa0(0x01)
+	char pad_A1[0x7]; // 0xa1(0x07)
+	char pad_A8[0xF4];
 };
 
 struct FFortAthenaLoadout

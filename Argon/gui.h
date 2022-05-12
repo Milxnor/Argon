@@ -472,6 +472,19 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				else
 					Logger::Log(_("Stopped logging ProcessEvent!"));
 			}
+
+			if (ImGui::Button(_("Give Creative Item")))
+			{
+				Helper::Creative::GiveItem(FindObject(_("FortWeaponRangedItemDefinition /Game/Athena/Items/Weapons/WaffleTruck/WID_WaffleTruck_Sniper_StormScout.WID_WaffleTruck_Sniper_StormScout")));
+				Logger::Log(_("Gave Storm Scout!"));
+			}
+			
+			if (ImGui::Button(_("Give Saved Item")))
+			{
+				Helper::Creative::GiveItem(entryToCopy);
+				Logger::Log(_("Gave Saved Item!"));
+			}
+
 			break;
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))

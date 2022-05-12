@@ -8,6 +8,7 @@
 static bool bLogProcessEvent = false;
 
 static bool bHasSetup = false;
+static FFortItemEntry entryToCopy;
 
 DWORD WINAPI Startup(LPVOID)
 {
@@ -83,11 +84,18 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 		else if (FunctionName.contains(_("ServerGiveCreativeItem")))
 		{
 			struct params {
-				UObject* CreativeItem;
+				FFortItemEntry CreativeItem;
 				FGuid ItemToRemoveGuid;
 			};
 
 			auto GiveItemParams = (params*)Params;
+
+			if (GiveItemParams)
+			{
+				Logger::Log(_("ServerGiveCreativeItem called with item: ") + GiveItemParams->CreativeItem.ItemDefinition->GetFullName());
+
+				entryToCopy = GiveItemParams->CreativeItem;
+			}
 		}
 
 		else if (FunctionName.contains(_("ValidateSpawnItems"))) // No idea what this does
@@ -284,7 +292,7 @@ CURLcode(*curl_easy_setopt)(CURL* curl, CURLoption option, ...);
 std::vector<std::string> URLs =
 {
 	_("/socialban/api/public/v1"), _("/affiliate/api/public/affiliates/slug"), _("/content/api/pages/fortnite-game"),
-	_("/fortnite/api/game/v2/profile"), _("/fortnite/api/v2/versioncheck/"), _("/fortnite/api/cloudstorage/system")
+	_("/fortnite/api/game/v2/profile") //, _("/fortnite/api/v2/versioncheck/"), _("/fortnite/api/cloudstorage/system")
 };
 
 #define HOST _("https://lawinserver.milxnor.repl.co")
