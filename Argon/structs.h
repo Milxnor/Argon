@@ -136,7 +136,7 @@ public:
 
 	void FreeString()
 	{
-		Data.Free();
+		// Data.Free();
 	}
 
 	void Set(const std::string& s)
@@ -861,7 +861,7 @@ bool Setup(void* ProcessEventHookAddr)
 	if (!FreeMemoryAddr)
 	{
 		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
-		return false;
+		// return false;
 	}
 
 	FMemory::Free = decltype(FMemory::Free)(FreeMemoryAddr);

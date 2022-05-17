@@ -66,7 +66,8 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 				!FunctionName.contains(_("ExecuteUbergraph_ThreatPostProcessManagerAndParticleBlueprint")) &&
 				!FunctionName.contains(_("BlueprintThreadSafeUpdateAnimation")) && 
 				!FunctionName.contains(_("SetContentColorAndOpacity")) &&
-				!FunctionName.contains(_("GetReticleColorOverride")))
+				!FunctionName.contains(_("GetReticleColorOverride")) &&
+				!FunctionName.contains(_("OnVisibilitySetEvent")))
 			{
 				Logger::log.WriteToFile(_("ProcessEvent_log.txt"), FunctionName + ' ' + Object->GetFullName());
 			}

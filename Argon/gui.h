@@ -485,6 +485,21 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				Logger::Log(_("Gave Saved Item!"));
 			}
 
+			if (ImGui::Button(_("Print Roles")))
+			{
+				if (Globals::GetPawn(true))
+				{
+					Logger::Log(std::format(_("Pawn => LocalRole: {} RemoteRole: {}"), std::to_string((*Globals::GetPawn()->Member<TEnumAsByte<ENetRole>>(_("Role"))).Get()),
+						std::to_string((*Globals::GetPawn()->Member<TEnumAsByte<ENetRole>>(_("RemoteRole"))).Get())));
+				}
+
+				if (Globals::GetPC())
+				{
+					Logger::Log(std::format(_("PC => LocalRole: {} RemoteRole: {}"), std::to_string((*Globals::GetPC()->Member<TEnumAsByte<ENetRole>>(_("Role"))).Get()),
+						std::to_string((*Globals::GetPC()->Member<TEnumAsByte<ENetRole>>(_("RemoteRole"))).Get())));
+				}
+			}
+
 			break;
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))

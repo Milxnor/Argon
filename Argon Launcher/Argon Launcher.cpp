@@ -214,7 +214,7 @@ int main(){
 	else
 	{
 		std::cout << _("Please download the new launcher in the discord https://discord.gg/JqJDDBFUWn.\n");
-		std::cin.get();
+		// std::cin.get();
 	}
 	
 	auto fnPath = GetFortnitePath();
