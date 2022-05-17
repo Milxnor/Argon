@@ -136,7 +136,7 @@ public:
 
 	void FreeString()
 	{
-		// Data.Free();
+		Data.Free();
 	}
 
 	void Set(const std::string& s)
@@ -856,12 +856,15 @@ bool Setup(void* ProcessEventHookAddr)
 	{
 		ToStringAddr = FindPattern(_("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B"));
 		ProcessEventAddr = FindPattern(_("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 45 33 ED"));
+
+		if (!FreeMemoryAddr)
+			FreeMemoryAddr = FindPattern(_("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 ? 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF"));
 	}
 
 	if (!FreeMemoryAddr)
 	{
 		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
-		// return false;
+		return false;
 	}
 
 	FMemory::Free = decltype(FMemory::Free)(FreeMemoryAddr);
