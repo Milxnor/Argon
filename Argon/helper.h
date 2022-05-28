@@ -464,4 +464,100 @@ namespace Helper
 
         Globals::GetPC()->ProcessEvent(fn, &data);
     }
+	
+    static auto PngToTexture2D(FString& Path)
+    {
+		static auto renderingLibrary = FindObject(_("KismetRenderingLibrary /Script/Engine.Default__KismetRenderingLibrary"));
+
+		static auto fn = renderingLibrary->Function(_("ImportFileAsTexture2D"));
+
+        struct {
+            UObject* World;
+            FString FileName;
+            UObject* ReturnValue;
+        } params;
+
+        params.World = Globals::GetWorld(true);
+        params.FileName = Path;
+        
+        renderingLibrary->ProcessEvent(fn, &params);
+
+        return params.ReturnValue;
+    }
+
+    static auto StringToName(FString Str)
+    {
+        struct {
+            FString String;
+            FName ReturnValue;
+        } params;
+
+        params.String = Str;
+		
+        static auto renderingLibrary = FindObject(_("KismetStringLibrary /Script/Engine.Default__KismetStringLibrary"));
+
+        static auto fn = renderingLibrary->Function(_("Conv_StringToName"));
+		
+		renderingLibrary->ProcessEvent(fn, &params);
+
+        return params.ReturnValue;
+    }
+
+    static void SetPartTextureFromPng(EFortCustomPartType PartType, FString& Path)
+    {
+        struct {
+            FName ParameterName;
+            UObject* Value; // Texture
+        } params{};
+
+        params.ParameterName = StringToName(_(L"Diffuse"));
+		params.Value = PngToTexture2D(Path);
+
+        for (auto i = 0; i < 6; i++)
+        {
+            auto MaterialInstanceDynamic = FindObject(
+                _("MaterialInstanceDynamic /Game/Athena/Artemis/Maps/Artemis_Terrain.Artemis_Terrain.PersistentLevel.PlayerPawn_Athena_C_"), false, false, i);
+
+            if (!MaterialInstanceDynamic)
+            {
+                MaterialInstanceDynamic = FindObject(
+                    _("MaterialInstanceDynamic /Game/Maps/Frontend.Frontend.PersistentLevel.PlayerPawn_Athena_C_"), false, false, i);
+
+                if (!MaterialInstanceDynamic)
+                    MaterialInstanceDynamic = FindObject(
+                        _("MaterialInstanceDynamic /Game/Creative/Maps/Creative_NoApollo_Terrain.Creative_NoApollo_Terrain.PersistentLevel.PlayerPawn_Athena_C_"), false, false, i);
+            }
+
+            if (MaterialInstanceDynamic)
+            {
+				static auto fn = MaterialInstanceDynamic->Function(_("SetTextureParameterValue"));
+
+                std::string toFind;
+				
+                switch (PartType)
+                {
+                case EFortCustomPartType::Head:
+                    toFind = _("CharacterPartSkelMesh_Head");
+                    break;
+                case EFortCustomPartType::Body:
+                    toFind = _("CharacterPartSkelMesh_Body");
+                    break;
+                default:
+                    toFind = _("Undefined");
+                    break;
+                }
+
+                if (toFind != _("Undefined") && MaterialInstanceDynamic->GetFullName().contains(toFind))
+                {
+                    MaterialInstanceDynamic->ProcessEvent(fn, &params);
+                    return;
+                }
+            }
+            else
+            {
+                std::cout << _("Unable to find MaterialInstanceDynamic!\n");
+                break;
+            }
+        }
+    }
 }

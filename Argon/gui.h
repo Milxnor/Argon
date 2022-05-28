@@ -14,6 +14,7 @@
 #include <ImGui/imgui_impl_win32.h>
 #include <ImGui/imgui_impl_dx11.h>
 #include <Kiero/kiero.h>
+#include <filesystem>
 
 #include "util.h"
 #include "helper.h"
@@ -25,6 +26,8 @@ static bool bBodyVisible = true;
 HRESULT(WINAPI* PresentOriginal)(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_t Flags);
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+namespace fs = std::filesystem;
 
 HWND wnd = NULL;
 WNDPROC oWndProc;
@@ -116,6 +119,8 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 		static float FOV = 80;
 		static char WID[60] = {};
 		static bool bConsoleIsOpen = false;
+		static char headPath[MAX_PATH] = "";
+		static char bodyPath[MAX_PATH] = "";
 
 		if (ImGui::BeginTabBar("")) { // Figure out what tab they are on // Creative Bar??
 			if (ImGui::BeginTabItem(_("Player")))
@@ -274,6 +279,63 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			break;
 #endif
 		case 4:
+			ImGui::InputText(_("Head Png Texture Path"), headPath, IM_ARRAYSIZE(headPath));
+			ImGui::InputText(_("Body Png Texture Path"), bodyPath, IM_ARRAYSIZE(bodyPath));
+
+			if (ImGui::Button(_("Apply Head Texture")))
+			{
+				auto Pawn = Globals::GetPawn(true);
+
+				if (Pawn)
+				{
+					std::string HeadPath = headPath;
+					if (!HeadPath.empty())
+					{
+						if (fs::exists(HeadPath))
+						{
+							if (HeadPath.contains(_(".png")))
+							{
+								FString h = _(L"C:\\Users\\Stowe\\Downloads\\fortnite.png");
+								Helper::SetPartTextureFromPng(EFortCustomPartType::Head, h);
+							}
+							else
+								std::cout << _("Path is not a png file!\n");
+						}
+						else
+							std::cout << _("Path does not exist!\n");
+					}
+					else
+						std::cout << _("Path is empty!\n");
+				}
+			}
+
+			if (ImGui::Button(_("Apply Body Texture")))
+			{
+				auto Pawn = Globals::GetPawn(true);
+
+				if (Pawn)
+				{
+					std::string BodyPath = bodyPath;
+					if (!BodyPath.empty())
+					{
+						if (fs::exists(BodyPath))
+						{
+							if (BodyPath.contains(_(".png")))
+							{
+								FString b = _(L"C:\\Users\\Stowe\\Downloads\\fortnite.png");
+								Helper::SetPartTextureFromPng(EFortCustomPartType::Body, b);
+							}
+							else
+								std::cout << _("Path is not a png file!\n");
+						}
+						else
+							std::cout << _("Path does not exist!\n");
+					}
+					else
+						std::cout << _("Path is empty!\n");
+				}
+			}
+
 			if (ImGui::Button(_("Set Head Visibility")))
 			{
 				bHeadVisible = !bHeadVisible;

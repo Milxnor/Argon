@@ -325,7 +325,7 @@ struct FChunkedFixedUObjectArray // https://github.com/EpicGames/UnrealEngine/bl
 };
 
 template <typename ReturnType = UObject>
-static ReturnType* FindObject(const std::string& str, bool bIsEqual = false, bool bIsName = false)
+static ReturnType* FindObject(const std::string& str, bool bIsEqual = false, bool bIsName = false, int Skip = 0)
 {
 	if (bIsName) bIsEqual = true;
 
@@ -340,12 +340,29 @@ static ReturnType* FindObject(const std::string& str, bool bIsEqual = false, boo
 		if (bIsEqual)
 		{
 			if (ObjectName == str)
+			{
+				if (Skip > 0)
+				{
+					Skip--;
+					continue;
+				}
+				
 				return (ReturnType*)Object;
+			}
 		}
 		else
 		{
+			
 			if (ObjectName.contains(str))
+			{
+				if (Skip > 0)
+				{
+					Skip--;
+					continue;
+				}
+
 				return (ReturnType*)Object;
+			}
 		}
 	}
 
@@ -864,7 +881,7 @@ bool Setup(void* ProcessEventHookAddr)
 	if (!FreeMemoryAddr)
 	{
 		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
-		return false;
+		// return false;
 	}
 
 	FMemory::Free = decltype(FMemory::Free)(FreeMemoryAddr);
