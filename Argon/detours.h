@@ -153,60 +153,76 @@ void* ProcessEventDetour(UObject* Object, UObject* Function, void* Params)
 				static auto notImplemented = []() {
 					Helper::Console::Say(_(L"This cheatscript hasn't been implemented yet. It will be in a future Argon Update."));
 				};
-				// std::vector<std::string> args = ScriptName.split(' ');
 
-				if (ScriptName == _("beauthority"))
+				std::vector<std::string> Arguments;
+
+				while (ScriptName.find(" ") != -1)
 				{
-					Helper::ChangeRoles(Globals::GetPC(), ENetRole::ROLE_Authority);
-					Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
+					Arguments.push_back(ScriptName.substr(0, ScriptName.find(' ')));
+					ScriptName.erase(0, ScriptName.find(' ') + 1);
 				}
+				
+				auto NumArgs = Arguments.size() - 1;
 
-				else if (ScriptName == _("fnver") || ScriptName == _("fnversion") || ScriptName == _("fortniteversion") || ScriptName == _("fortnitever"))
+				if (NumArgs == 0)
 				{
-					Helper::Console::Say(std::wstring(FN_Version.begin(), FN_Version.end()).c_str());
-				}
-
-				else if (ScriptName == _("argonver") || ScriptName == _("argonversion"))
-				{
-					Helper::Console::Say(TrimString(std::to_wstring(ArgonVersion)).c_str());
-				}
-
-				else if (ScriptName == _("getroles"))
-				{
-					notImplemented();
-				}
-
-				else if (ScriptName == _("spawnpickup"))
-				{
-					notImplemented();
-				}
-
-				else if (ScriptName == _("help"))
-				{
-					std::wstring helpStr = _(L"BeAuthority - Set's your Role and RemoteRole for your Pawn and PlayerController to Authority\n");
-					helpStr += _(L"FortniteVer - Prints Fortnite Version\n");
-					helpStr += _(L"ArgonVer - Prints Argon Version.\n");
-					helpStr += _(L"GetRoles - Prints Role and RemoteRole for your Pawn and PlayerController (COMING SOON).\n");
-					helpStr += _(L"SpawnPickup (WID) - Spawns a pickup at your location (COMING SOON).\n");
-
-					helpStr += _(L"Help - Displays this.\n");
-					Helper::Console::Say(helpStr.c_str());
-				}
-
-				else if (ScriptName == _("testspawnscar"))
-				{
-					if (Globals::GetPawn(true))
+					if (ScriptName == _("beauthority"))
 					{
-						static auto ScarDef = FindObject(_("FortWeaponRangedItemDefinition /Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03"));
-						Helper::SpawnPickup(ScarDef, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset, Globals::GetPawn(true));
+						Helper::ChangeRoles(Globals::GetPC(), ENetRole::ROLE_Authority);
+						Helper::ChangeRoles(Globals::GetPawn(), ENetRole::ROLE_Authority);
 					}
-					
+
+					else if (ScriptName == _("fnver") || ScriptName == _("fnversion") || ScriptName == _("fortniteversion") || ScriptName == _("fortnitever"))
+					{
+						Helper::Console::Say(std::wstring(FN_Version.begin(), FN_Version.end()).c_str());
+					}
+
+					else if (ScriptName == _("argonver") || ScriptName == _("argonversion"))
+					{
+						Helper::Console::Say(TrimString(std::to_wstring(ArgonVersion)).c_str());
+					}
+
+					else if (ScriptName == _("getroles"))
+					{
+						notImplemented();
+					}
+
+					else if (ScriptName == _("spawnpickup"))
+					{
+						notImplemented();
+					}
+
+					else if (ScriptName == _("help"))
+					{
+						std::wstring helpStr = _(L"BeAuthority - Set's your Role and RemoteRole for your Pawn and PlayerController to Authority\n");
+						helpStr += _(L"FortniteVer - Prints Fortnite Version\n");
+						helpStr += _(L"ArgonVer - Prints Argon Version.\n");
+						helpStr += _(L"GetRoles - Prints Role and RemoteRole for your Pawn and PlayerController (COMING SOON).\n");
+						helpStr += _(L"SpawnPickup (WID) - Spawns a pickup at your location (COMING SOON).\n");
+
+						helpStr += _(L"Help - Displays this.\n");
+						Helper::Console::Say(helpStr.c_str());
+					}
+
+					else if (ScriptName == _("testspawnscar"))
+					{
+						if (Globals::GetPawn(true))
+						{
+							static auto ScarDef = FindObject(_("FortWeaponRangedItemDefinition /Game/Athena/Items/Weapons/WID_Assault_AutoHigh_Athena_SR_Ore_T03.WID_Assault_AutoHigh_Athena_SR_Ore_T03"));
+							Helper::SpawnPickup(ScarDef, 1, EFortPickupSourceTypeFlag::Other, EFortPickupSpawnSource::Unset, Globals::GetPawn(true));
+						}
+
+						else
+							std::cout << _("Failed to get Pawn!\n");
+					}
+
 					else
-						std::cout << _("Failed to get Pawn!\n");
+						Helper::Console::Say(_(L"Unrecognized command."));
 				}
 
-				else
-					Helper::Console::Say(_(L"Unrecognized command."));
+				else if (NumArgs == 1)
+				{
+				}
 			}
 		}
 

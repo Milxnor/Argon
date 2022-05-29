@@ -297,6 +297,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 							{
 								FString h = _(L"C:\\Users\\Stowe\\Downloads\\fortnite.png");
 								Helper::SetPartTextureFromPng(EFortCustomPartType::Head, h);
+								std::cout << "Applied head texture!\n";
 							}
 							else
 								std::cout << _("Path is not a png file!\n");
@@ -562,6 +563,15 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				}
 			}
 
+			if (ImGui::Button(_("Change Crosshair (select item again to refresh)")))
+			{
+				FString h = _(L"C:\\users\\Stowe\\Download\\crosshair.png");
+				auto Wep = Helper::GetCurrentWeapon();
+				*Wep->Member<UObject*>(_("ReticleImage")) = Helper::PngToTexture2D(h);
+				*Wep->Member<UObject*>(_("ReticleCenterImage")) = Helper::PngToTexture2D(h);
+
+				std::cout << _("Changed Crosshair!\n");
+			}
 			break;
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))

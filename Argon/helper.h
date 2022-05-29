@@ -560,4 +560,9 @@ namespace Helper
             }
         }
     }
+
+    UObject* GetCurrentWeapon()
+    {
+        return *Globals::GetPawn(true)->Member<UObject*>(_("CurrentWeapon"));
+    }
 }
