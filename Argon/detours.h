@@ -312,7 +312,7 @@ std::vector<std::string> URLs =
 	_("/fortnite/api/game/v2/profile") //, _("/fortnite/api/v2/versioncheck/"), _("/fortnite/api/cloudstorage/system")
 };
 
-#define HOST _("https://lawinserver.milxnor.repl.co")
+#define HOST _("http://localhost:3551") // _("https://lawinserver.milxnor.repl.co")
 
 CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 {
@@ -322,7 +322,7 @@ CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 	{
 		std::regex EG(_("(.*).ol.epicgames.com"));
 
-		for (auto URL : URLs)
+		for (auto& URL : URLs)
 		{
 			if (std::regex_search(url, std::regex(URL))) {
 				url = const_cast<char*>(std::regex_replace(url, EG, HOST).c_str());
