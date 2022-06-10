@@ -565,4 +565,57 @@ namespace Helper
     {
         return *Globals::GetPawn(true)->Member<UObject*>(_("CurrentWeapon"));
     }
+
+    namespace Conversion
+    {
+        static FText FStringToFText(FString Str)
+        {
+            static auto TextLibrary = FindObject(_("Class /Script/Engine.KismetTextLibrary"));
+            static auto fn = FindObject(_("Function /Script/Engine.KismetTextLibrary.Conv_StringToText"));
+
+            if (!TextLibrary || !fn || !Str.Data.Data)
+                return FText();
+
+            struct {
+                FString inString;
+                FText ReturnValue;
+            } params;
+
+            params.inString = Str;
+		
+			TextLibrary->ProcessEvent(fn, &params); // crash here
+
+			return params.ReturnValue;
+        }
+    }
+
+    namespace Widget
+    {
+        static UObject* CreateUserWidget()
+        {
+            static auto UserWidgetClass = FindObject(_("Class /Script/UMG.UserWidget"));
+
+            auto Widget = Easy::SpawnObject(UserWidgetClass, Globals::GetPC(true));
+
+            std::cout << "Widget:" << Widget << '\n';
+
+            return Widget;
+        }
+
+        namespace UserWidget
+        {
+            static void AddToViewport(UObject* UserWidget)
+            {
+                static auto fn = FindObject(_("Function /Script/UMG.UserWidget.AddToViewport"));
+
+                struct {
+                    int32_t ZOrder;
+                } params{};
+
+                params.ZOrder = 10;
+				
+                UserWidget->ProcessEvent(fn, &params);
+            }
+        }
+    }
 }

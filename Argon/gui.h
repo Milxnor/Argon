@@ -572,6 +572,18 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 
 				std::cout << _("Changed Crosshair!\n");
 			}
+
+			else if (ImGui::Button(_("Test Widget")))
+			{
+				auto Widget = Helper::Widget::CreateUserWidget();
+
+				*Widget->Member<FText>(_("ToolTipText")) = Helper::Conversion::FStringToFText(L"Fortnitee");
+				*Widget->Member<FLinearColor>(_("ColorAndOpacity")) = FLinearColor(245, 40, 145, 0.8); // Pink
+				
+				Helper::Widget::UserWidget::AddToViewport(Widget);
+
+				std::cout << "Added to Viewport!\n";
+			}
 			break;
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))

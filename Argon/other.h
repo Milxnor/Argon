@@ -1,20 +1,60 @@
 #include <Windows.h>
 #include <vector>
 
-struct FVector
+template<typename T>
+struct TVector
 {
-	float X;
-	float Y;
-	float Z;
+	static_assert(std::is_floating_point_v<T>, "T must be floating point");
+
+public:
+	using FReal = T;
+
+	union
+	{
+		struct
+		{
+			/** Vector's X component. */
+			T X;
+
+			/** Vector's Y component. */
+			T Y;
+
+			/** Vector's Z component. */
+			T Z;
+		};
+	};
 };
 
-struct FQuat
+template<typename T>
+struct TRotator
 {
-	float X;
-	float Y;
-	float Z;
-	float W;
+	static_assert(std::is_floating_point_v<T>, "TRotator only supports float and double types.");
+
+public:
+	using FReal = T;
+
+	T Pitch;
+	T Yaw;
+	T Roll;
 };
+
+template<typename T>
+struct alignas(16) TQuat
+{
+	static_assert(std::is_floating_point_v<T>, "TQuat only supports float and double types.");
+
+public:
+	using FReal = T;
+
+	T X;
+	T Y;
+	T Z;
+	T W;
+};
+
+typedef TRotator<double> FRotator;
+typedef TVector<double> FVector;
+typedef TQuat<double> FQuat;
 
 struct FTransform // https://github.com/EpicGames/UnrealEngine/blob/c3caf7b6bf12ae4c8e09b606f10a09776b4d1f38/Engine/Source/Runtime/Core/Public/Math/TransformNonVectorized.h#L28
 {
@@ -23,13 +63,6 @@ struct FTransform // https://github.com/EpicGames/UnrealEngine/blob/c3caf7b6bf12
 	char pad_1C[0x4]; // Padding never changes
 	FVector Scale3D;
 	char pad_2C[0x4];
-};
-
-struct FRotator
-{
-	float Pitch;
-	float Yaw;
-	float Roll;
 };
 
 template<class TEnum>
@@ -46,6 +79,13 @@ struct TEnumAsByte // https://github.com/EpicGames/UnrealEngine/blob/4.21/Engine
 	{
 		return Value;
 	}
+};
+
+struct FLinearColor {
+	float R; // 0x00(0x04)
+	float G; // 0x04(0x04)
+	float B; // 0x08(0x04)
+	float A; // 0x0c(0x04)
 };
 
 #pragma once
@@ -469,4 +509,14 @@ struct FCreateBuildingActorData {
 	float SyncKey; // 0x20(0x04)
 	char pad_24[0x4]; // 0x24(0x04)
 	FBuildingClassData BuildingClassData; // 0x28(0x10)
+};
+
+struct FText // WRONG
+{
+	char UnknownData[0x18];
+	/*
+	TSharedRef<ITextData, ESPMode::ThreadSafe> TextData;
+	uint32 Flags;
+
+	*/
 };
