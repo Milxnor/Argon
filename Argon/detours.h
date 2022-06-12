@@ -4,11 +4,9 @@
 
 #include "helper.h"
 #include "util.h"
-
-static bool bLogProcessEvent = false;
+#include "gui.h"
 
 static bool bHasSetup = false;
-static FFortItemEntry entryToCopy;
 
 DWORD WINAPI Startup(LPVOID)
 {
@@ -313,7 +311,6 @@ std::vector<std::string> URLs =
 };
 
 #define HOST _("http://localhost:3551") // _("https://lawinserver.milxnor.repl.co")
-
 CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 {
 	switch (option)
@@ -328,6 +325,12 @@ CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 				url = const_cast<char*>(std::regex_replace(url, EG, HOST).c_str());
 				break;
 			}
+		}
+		
+		if (std::string(url).find(playlistToReplace)) // && playlistToReplace != playlistToReplaceWith)
+		{
+			url = const_cast<char*>(std::regex_replace(url, std::regex(playlistToReplace), playlistToReplaceWith).c_str());
+			std::cout << _("Changed Playlist!\n");
 		}
 
 		break;

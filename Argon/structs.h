@@ -888,7 +888,8 @@ bool Setup(void* ProcessEventHookAddr)
 
 	if (!FreeMemoryAddr)
 	{
-		MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
+		std::cout << _("[WARNING] Unable to find FMemory::Free\n"); // it can still run without free
+		// MessageBoxA(0, _("Failed to find FMemory::Free"), _("Argon"), MB_OK);
 		// return false;
 	}
 
@@ -914,6 +915,12 @@ bool Setup(void* ProcessEventHookAddr)
 
 	auto b = MH_CreateHook((PVOID)ProcessEventAddr, ProcessEventHookAddr, (PVOID*)&ProcessEventO);
 	auto c = MH_EnableHook((PVOID)ProcessEventAddr);
+
+	if (b != MH_OK || c != MH_OK)
+	{
+		std::cout << std::format(_("CreateHook: {} EnableHook: {}\n"), MH_StatusToString(b), MH_StatusToString(c));
+		return false;
+	}
 	
 	if (!ObjectsAddr)
 	{

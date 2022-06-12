@@ -31,12 +31,17 @@ namespace fs = std::filesystem;
 
 HWND wnd = NULL;
 WNDPROC oWndProc;
-ID3D11Device* pDevice = NULL;
-ID3D11DeviceContext* pContext = NULL;
+ID3D11Device* pDevice = nullptr;
+ID3D11DeviceContext* pContext = nullptr;
 ID3D11RenderTargetView* mainRenderTargetView;
 
 static bool bHasInit = false;
 static bool bShow = false;
+
+static bool bLogProcessEvent = false;
+static char playlistToReplace[128] = _("playlist_defaultsolo");
+static char playlistToReplaceWith[128] = _("playlist_defaultsolo"); // playlist_vk_edit
+static FFortItemEntry entryToCopy;
 
 LRESULT __stdcall WndProc(const HWND hWnd, uint32_t message, WPARAM wParam, LPARAM lParam)
 {
@@ -58,6 +63,7 @@ LRESULT __stdcall WndProc(const HWND hWnd, uint32_t message, WPARAM wParam, LPAR
 	case WM_QUIT:
 		if (bShow)
 			ExitProcess(0);
+		
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -166,10 +172,16 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				Tab = 7;
 				ImGui::EndTabItem();
 			}
+
+			if (ImGui::BeginTabItem(_("Playlist")))
+			{
+				Tab = 8;
+				ImGui::EndTabItem();
+			}
 			
 			if (ImGui::BeginTabItem(_("Credits")))
 			{
-				Tab = 8;
+				Tab = 9;
 				ImGui::EndTabItem();
 			}
 
@@ -379,9 +391,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 							Logger::Log(_("PC PID: ") + (*(UObject**)((uintptr_t)PCLoadout + 0x40))->GetFullName());
 							*(UObject**)((uintptr_t)PCLoadout + 0x40) = PID;
 
-							Globals::GetPawn(true);
-
-							if (Globals::GetPawn())
+							if (Globals::GetPawn(true))
 							{
 								auto PawnBaseLoadout = Globals::GetPawn()->Member<FFortAthenaLoadout>(_("BaseCosmeticLoadout"));
 								auto PawnAppliedLoadout = Globals::GetPawn()->Member<FFortAthenaLoadout>(_("AppliedCosmeticLoadout"));
@@ -438,10 +448,8 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			}
 
 			if (ImGui::Button(_("Request Refresh Loadout (DONT USE IN LOBBY)"))) // TODO: Add a check to see if they are in lobby, if they are don't show them this.
-			{
-				Globals::GetPC(true);
-				
-				if (Globals::GetPC())
+			{				
+				if (Globals::GetPC(true))
 				{
 					static auto fn = Globals::GetPC()->Function(_("ServerRequestLoadoutRefresh"));
 					bool bForceRefresh = true;
@@ -582,7 +590,7 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 				
 				Helper::Widget::UserWidget::AddToViewport(Widget);
 
-				std::cout << "Added to Viewport!\n";
+				std::cout << _("Added to Viewport!\n");
 			}
 			break;
 		case 6:
@@ -596,6 +604,10 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 			ShowConsole(&bConsoleIsOpen);
 			break;
 		case 8:
+			ImGui::InputText(_("Playlist to Replace:"), playlistToReplace, IM_ARRAYSIZE(playlistToReplace));
+			ImGui::InputText(_("Playlist to Replace With:"), playlistToReplaceWith, IM_ARRAYSIZE(playlistToReplaceWith));
+			break;
+		case 9:
 		{
 			static ImVec4 Color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 			ImGui::TextColored(Color, _("Credits:\n\nMilxnor - Everything"));
