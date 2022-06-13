@@ -327,10 +327,19 @@ CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 			}
 		}
 		
-		if (std::string(url).find(playlistToReplace)) // && playlistToReplace != playlistToReplaceWith)
+		if (std::string(url).find(playlistToReplace) != std::string::npos) // && playlistToReplace != playlistToReplaceWith)
 		{
 			url = const_cast<char*>(std::regex_replace(url, std::regex(playlistToReplace), playlistToReplaceWith).c_str());
 			std::cout << _("Changed Playlist!\n");
+		}
+
+		if (bIsS13)
+		{
+			if (std::string(url).find(_("WIN")) != std::string::npos)
+			{
+				url = const_cast<char*>(std::regex_replace(url, std::regex(_("WIN")), _("IOS")).c_str());
+				std::cout << _("Changed Platform!\n");
+			}
 		}
 
 		break;
