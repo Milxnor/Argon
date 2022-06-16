@@ -1,4 +1,4 @@
-# Argon
+<h1 align="center">Argon</h1>
 
 Discord server:  https://discord.gg/JqJDDBFUWn 
 
