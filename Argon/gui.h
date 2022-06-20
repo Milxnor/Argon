@@ -39,8 +39,8 @@ static bool bHasInit = false;
 static bool bShow = false;
 
 static bool bLogProcessEvent = false;
-static char playlistToReplace[128] = _("playlist_defaultsolo");
-static char playlistToReplaceWith[128] = _("playlist_defaultsolo"); // playlist_vk_edit
+static char playlistToReplace[128] = "playlist_defaultsolo";
+static char playlistToReplaceWith[128] = "playlist_defaultsolo"; // playlist_vk_edit
 static FFortItemEntry entryToCopy;
 
 LRESULT __stdcall WndProc(const HWND hWnd, uint32_t message, WPARAM wParam, LPARAM lParam)

@@ -7,6 +7,8 @@
 #include <fstream>
 #include <json.hpp>
 
+#include "fnauth.h"
+
 #pragma comment(lib, "urlmon.lib")
 
 namespace fs = std::filesystem;
@@ -75,12 +77,12 @@ bool NewProcess(const ProcessParams& params)
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	// std::cout << _("Starting ") << params.exeName << '\n';
+	std::cout << std::format(_("Starting {} with args {}\n", fspath.string().c_str(), (char*)args.c_str()));
 
 	// std::wcout << wpath.c_str() << '\n';
 
 	if (!CreateProcessA(fspath.string().c_str(),// const_cast<LPCWSTR>(wpath.c_str()),
-		NULL,// fspath.string(),
+		(char*)args.c_str(),// fspath.string(),
 		NULL,
 		NULL,
 		FALSE,
@@ -92,6 +94,7 @@ bool NewProcess(const ProcessParams& params)
 		)
 	{
 		std::cout << _("Couldn't create process ") + fspath.filename().string() + _(" and the error code is ") << GetLastError() << std::endl;
+		// 2 = file not found
 	}
 	else
 	{
@@ -102,6 +105,7 @@ bool NewProcess(const ProcessParams& params)
 			if (fs::exists(fullDllPath)) std::cout << _("Injecting dll not implemented.");// std::cout << InjectDLL(pi.dwProcessId, fullDllPath, params.exeName.c_str()) << std::endl;
 			else std::cout << _("Couldn't locate dll to inject!");
 		}
+		
 		WaitForSingleObject(pi.hProcess, INFINITE);
 
 		delete[]wcp;
@@ -135,7 +139,19 @@ bool isFakeAnticheat(const std::string& Path)
 	return true;
 }
 
-std::string GetFortnitePath()
+std::string RequestAuthorizationCode()
+{
+	std::cout << _("Please get your authorization code from here from the process about to start...");
+	Sleep(750);
+	ShellExecuteA(0, 0, std::format("https://www.epicgames.com/id/api/redirect?clientId={}&responseType=code", FortniteAuth::clientId).c_str(), 0, 0, SW_SHOW);
+
+	std::cout << _("\n\nPlease enter your authorization code: ");
+	std::string code;
+	std::getline(std::cin, code);
+	return code;
+}
+
+std::string FindFortnitePath()
 {
 	char* buf{};
 	size_t size = MAX_PATH;
@@ -153,7 +169,7 @@ std::string GetFortnitePath()
 		json j = json::parse(data);
 		data.close();
 
-		auto listOfGames = j[_("InstallationList")];
+		auto& listOfGames = j[_("InstallationList")];
 
 		for (auto game : listOfGames)
 		{
@@ -217,7 +233,7 @@ int main(){
 		// std::cin.get();
 	}
 	
-	auto fnPath = GetFortnitePath();
+	auto fnPath = FindFortnitePath();
 
 	if (!fnPath.contains(_("\\")))
 	{
@@ -244,7 +260,11 @@ int main(){
 	std::getline(std::cin, optStr);
 	
 	int opt = 0;
-	opt = std::stoi(optStr);
+	try
+	{
+		opt = std::stoi(optStr);
+	}
+	catch (std::exception& e) {}
 	
 	auto invalidOption = []() {
 		std::cout << _("Invalid option!\n");
@@ -291,8 +311,32 @@ int main(){
 		break;
 	}
 	case 2:
-		std::cout << _("Coming soon!");
+	{
+		std::string S13Path;
+		std::cout << "Please enter your S13 Fortnite Path: ";
+		std::getline(std::cin, S13Path);
+
+		auto AuthCode = RequestAuthorizationCode();
+
+		auto AccessToken = FortniteAuth::GenerateAccessToken(AuthCode);
+		// std::cout << "AccessToken: " << AccessToken << '\n';
+
+		auto ExchangeCode = FortniteAuth::GenerateExchangeCode(AccessToken);
+		// std::cout << "ExchangeCode: " << DeviceCode << '\n';
+
+		std::string Arguments = std::format("-AUTH_LOGIN=unused -AUTH_PASSWORD={} -AUTH_TYPE=exchangecode -epicapp=Fortnite -epicenv=Prod -epiclocale=en-us -epicportal -noeac -fromfl=be -fltoken=7d05d6869798a086b4bb6222 -skippatchcheck", ExchangeCode);
+
+		ProcessParams fnShipping;
+		fnShipping.exeName = (fs::path(S13Path) / _("FortniteClient-Win64-Shipping.exe")).generic_string();
+		fnShipping.exeIsFullPath = true;
+		fnShipping.exeArguments = Arguments;
+
+		NewProcess(fnShipping);
+
+		std::cout << _("\nLaunched Fortnite!\nArgon Discord: https://discord.gg/JqJDDBFUWn.\n");
+
 		break;
+	}		
 	case 3:
 		if (!options.contains(_("2")))
 			invalidOption();
