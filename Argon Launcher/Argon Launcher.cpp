@@ -77,11 +77,16 @@ bool NewProcess(const ProcessParams& params)
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	std::cout << std::format(_("Starting {} with args {}\n", fspath.string().c_str(), (char*)args.c_str()));
+	auto ProcName = (args.size() > 0) ? NULL : fspath.string().c_str();
+
+	if (ProcName == NULL)
+		args = std::format(_("\"{}\" {}"), fspath.string(), args);
+
+	std::cout << std::format(_("Starting {} with args {}\n"), fspath.string(), args);
 
 	// std::wcout << wpath.c_str() << '\n';
 
-	if (!CreateProcessA(fspath.string().c_str(),// const_cast<LPCWSTR>(wpath.c_str()),
+	if (!CreateProcessA(ProcName,// const_cast<LPCWSTR>(wpath.c_str()),
 		(char*)args.c_str(),// fspath.string(),
 		NULL,
 		NULL,
@@ -324,7 +329,7 @@ int main(){
 		auto ExchangeCode = FortniteAuth::GenerateExchangeCode(AccessToken);
 		// std::cout << "ExchangeCode: " << DeviceCode << '\n';
 
-		std::string Arguments = std::format("-AUTH_LOGIN=unused -AUTH_PASSWORD={} -AUTH_TYPE=exchangecode -epicapp=Fortnite -epicenv=Prod -epiclocale=en-us -epicportal -noeac -fromfl=be -fltoken=7d05d6869798a086b4bb6222 -skippatchcheck", ExchangeCode);
+		std::string Arguments = std::format("-AUTH_LOGIN=unused -AUTH_PASSWORD={} -AUTH_TYPE=exchangecode -epicapp=Fortnite -epicenv=Prod -epiclocale=en-us -epicportal -nobe -fromfl=eac -fltoken=24963ce04b575a5ca65526h0 -skippatchcheck", ExchangeCode);
 
 		ProcessParams fnShipping;
 		fnShipping.exeName = (fs::path(S13Path) / _("FortniteClient-Win64-Shipping.exe")).generic_string();

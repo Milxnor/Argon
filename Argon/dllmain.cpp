@@ -95,22 +95,30 @@ DWORD WINAPI Main(LPVOID)
 	
     if (!cURLEasyAddr)
         std::cout << _("[WARNING] Failed to find curl_easy_setopt.\n");
-
-    auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
-    CHECK_PATTERN(RequestExitWithStatusAddr, _("RequestExitWithStatus"));
-
-    if (cURLEasyAddr)
+    else
     {
         MH_CreateHook((PVOID)cURLEasyAddr, curl_easy_setoptDetour, (PVOID*)&curl_easy_setopt);
         MH_EnableHook((PVOID)cURLEasyAddr);
     }
-	
-    MH_CreateHook((LPVOID)RequestExitWithStatusAddr, RequestExitWithStatusDetour, (LPVOID*)&RequestExitWithStatusOriginal);
-    MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
+
+    auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
+    // CHECK_PATTERN(RequestExitWithStatusAddr, _("RequestExitWithStatus"));
+
+    if (!RequestExitWithStatusAddr && !bIsS13)
+        Logger::Log(_("[WARNING] Failed to find RequestExitWithStatus.\n"));
+    else
+    {
+        MH_CreateHook((LPVOID)RequestExitWithStatusAddr, RequestExitWithStatusDetour, (LPVOID*)&RequestExitWithStatusOriginal);
+        MH_EnableHook((LPVOID)RequestExitWithStatusAddr);
+    }
 
     auto SpawnActorAddr = FindPattern(_("48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 44 0F 29 90 ? ? ? ? 44 0F 29 98 ? ? ? ? 44 0F 29 A0 ? ? ? ? 44 0F 29 A8 ? ? ? ? 44 0F 29 B0 ? ? ? ? 44 0F 29 B8 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 ED 48 89 4C 24 ? 44 89 6C 24 ? 48 8D 05 ? ? ? ? 44 38 2D ? ? ? ? 4C"));
-    CHECK_PATTERN(SpawnActorAddr, _("SpawnActor"));
-    SpawnActorO = decltype(SpawnActorO)(SpawnActorAddr);
+    // CHECK_PATTERN(SpawnActorAddr, _("SpawnActor"));
+    
+    if (!SpawnActorAddr && !bIsS13)
+		Logger::Log(_("[WARNING] Failed to find SpawnActor.\n"));
+    else
+        SpawnActorO = decltype(SpawnActorO)(SpawnActorAddr);
 	
     CreateThread(0, 0, Input, 0, 0, 0);
     // CreateThread(0, 0, Startup, 0, 0, 0);
