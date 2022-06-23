@@ -872,7 +872,7 @@ bool Setup(void* ProcessEventHookAddr)
 	if (FnVerDouble >= 19.00)
 	{
 		ToStringAddr = FindPattern(_("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B"));
-		ProcessEventAddr = FindPattern(_("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 45 33 ED"));
+		ProcessEventAddr = FindPattern(_("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 45"));
 
 		if (!FreeMemoryAddr)
 			FreeMemoryAddr = FindPattern(_("48 85 C9 0F 84 ? ? ? ? 53 48 83 EC 20 48 89 7C 24 ? 48 8B D9 48 8B 3D ? ? ? ? 48 85 FF"));
@@ -881,9 +881,6 @@ bool Setup(void* ProcessEventHookAddr)
 		
 		if (!ToStringAddr)
 			ToStringAddr = FindPattern(_("48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B 01 48 8B F2 8B"));
-
-		if (!ProcessEventAddr)
-			ProcessEventAddr = FindPattern(_("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 45"));
 	}
 
 	if (!FreeMemoryAddr)
@@ -905,10 +902,26 @@ bool Setup(void* ProcessEventHookAddr)
 
 	ToStringO = decltype(ToStringO)(ToStringAddr);
 
+	if (!ObjectsAddr)
+	{
+		MessageBoxA(0, _("Failed to find FUObjectArray::ObjObjects"), _("Argon"), MB_OK);
+		return false;
+	}
+
+	if (bOldObjects)
+		OldObjects = decltype(OldObjects)(ObjectsAddr);
+	else
+		ObjObjects = decltype(ObjObjects)(ObjectsAddr);
+
 	if (!ProcessEventAddr)
 	{
-		MessageBoxA(0, _("Failed to find UObject::ProcessEvent"), _("Argon"), MB_OK);
-		return false;
+		ProcessEventAddr = __int64(ObjObjects->GetObjectById(1)->VFTable[0x4D]); // new season
+
+		if (!ProcessEventAddr)
+		{
+			MessageBoxA(0, _("Failed to find UObject::ProcessEvent"), _("Argon"), MB_OK);
+			return false;
+		}
 	}
 
 	ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
@@ -921,17 +934,6 @@ bool Setup(void* ProcessEventHookAddr)
 		std::cout << std::format(_("CreateHook: {} EnableHook: {}\n"), MH_StatusToString(b), MH_StatusToString(c));
 		return false;
 	}
-	
-	if (!ObjectsAddr)
-	{
-		MessageBoxA(0, _("Failed to find FUObjectArray::ObjObjects"), _("Argon"), MB_OK);
-		return false;
-	}
-
-	if (bOldObjects)
-		OldObjects = decltype(OldObjects)(ObjectsAddr);
-	else
-		ObjObjects = decltype(ObjObjects)(ObjectsAddr);
 
 	if (FnVerDouble == 13.40)
 		bIsS13 = true;

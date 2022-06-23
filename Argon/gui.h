@@ -592,6 +592,117 @@ HRESULT WINAPI HookPresent(IDXGISwapChain* SwapChain, uint32_t Interval, uint32_
 
 				std::cout << _("Added to Viewport!\n");
 			}
+
+			else if (ImGui::Button(_("Get 50th Pawn Health")))
+			{
+				static UObject* PawnClass = FindObject(_("BlueprintGeneratedClass /Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C"));
+				auto AllPawns = Helper::GameplayStatics::GetAllActorsOfClass(PawnClass);
+
+				if (AllPawns.Data)
+				{
+					auto PawnFifty = AllPawns.At(10);
+
+					if (PawnFifty)
+					{
+						std::cout << _("Found fiftieth pawn!\n");
+
+						// auto HealthSet = PawnFifty->Member<UObject*>(_("HealthSet"));
+						auto HealthSet = (UObject**)(__int64(PawnFifty) + 0xfa0);
+
+						if (HealthSet && *HealthSet)
+						{
+							std::cout << _("Health Set Valid!\n");
+
+							auto CurrentHealth = (*HealthSet)->Member<__int64>(_("CurrentHealth"));
+
+							std::cout << _("CurrentHealth: ") << CurrentHealth << '\n';
+
+							auto CurrentVal = (float*)(__int64(CurrentHealth) + 0x0c);
+
+							std::cout << _("CurrentVal Addr: ") << CurrentVal << '\n';
+							std::cout << _("CurrentVal (Health): ") << *CurrentVal << '\n';
+						}
+
+						else
+							std::cout << _("Health Set Invalid: ") << HealthSet << '\n';
+					}
+					else
+						std::cout << _("Could not find the fiftieth pawn!\n");
+				}
+
+				AllPawns.Free();
+			}
+
+			else if (ImGui::Button(_("Get 10th PlayerState Health")))
+			{
+				static UObject* PlayerStateClass = FindObject(_("Class /Script/FortniteGame.FortPlayerStateZone"));
+				auto AllPlayerStates = Helper::GameplayStatics::GetAllActorsOfClass(PlayerStateClass);
+
+				if (AllPlayerStates.Data)
+				{
+					auto PlayerStateTenth = AllPlayerStates.At(10);
+
+					if (PlayerStateTenth)
+					{
+						std::cout << _("Found 10th PlayerState!\n");
+
+						auto CurrentHealth = PlayerStateTenth->Member<float>(_("CurrentHealth"));
+
+						std::cout << _("CurrentHealth Addr: ") << CurrentHealth << '\n';
+						std::cout << _("CurrentHealth: ") << *CurrentHealth << '\n';
+					}
+					else
+						std::cout << _("Could not find the PlayerStateTenth!\n");
+				}
+
+				AllPlayerStates.Free();
+			}
+
+			else if (ImGui::Button(_("Dababy")))
+			{
+				static UObject* PlayerStateClass = FindObject(_("Class /Script/FortniteGame.FortPlayerStateZone"));
+				auto AllPlayerStates = Helper::GameplayStatics::GetAllActorsOfClass(PlayerStateClass);
+
+				if (AllPlayerStates.Data)
+				{
+					auto PlayerStateTenth = AllPlayerStates.At(10);
+
+					if (PlayerStateTenth)
+					{
+						std::cout << _("Found 10th PlayerState!\n");
+
+						auto FUNC = PlayerStateTenth->Function(_("GetHealthAndShields"));
+
+						float Health = 0;
+						float HealthMax = 0;
+						float Shield = 0;
+						float ShieldMax = 0;
+
+						struct {
+							float& Health;
+							float& HealthMax;
+							float& Shield;
+							float& ShieldMax;
+						} params{Health, HealthMax, Shield, ShieldMax};
+
+						if (FUNC)
+							PlayerStateTenth->ProcessEvent(FUNC, &params);
+						else
+							std::cout << "NoFUNC!@\n";
+
+						std::cout << "Health: " << Health << "\n";
+						std::cout << "HealthMax: " << HealthMax << "\n";
+
+						std::cout << "Shield: " << Shield << "\n";
+						std::cout << "ShieldMax: " << ShieldMax << "\n";
+
+					}
+					else
+						std::cout << _("Could not find the PlayerStateTenth!\n");
+				}
+
+				AllPlayerStates.Free();
+			}
 			break;
 		case 6:
 			if (ImGui::Button(_("Test spawn building actor")))

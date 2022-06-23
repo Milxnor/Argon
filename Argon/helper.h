@@ -49,6 +49,25 @@ namespace Helper
 
             return SpawnObjectFunction;
         }
+
+        static TArray<UObject*> GetAllActorsOfClass(UObject* Class)
+        {
+            static UObject* GetAllActorsOfClass = FindObject("Function /Script/Engine.GameplayStatics.GetAllActorsOfClass");
+
+            struct
+            {
+                UObject* World;
+                UObject* Class;
+                TArray<UObject*> ReturnValue;
+            } Params;
+
+            Params.World = Globals::GetWorld(true);
+            Params.Class = Class;
+
+            ProcessEventO(GetClass(), GetAllActorsOfClass, &Params);
+
+            return Params.ReturnValue;
+        }
     }
 
     namespace Kismet
