@@ -70,11 +70,11 @@ DWORD WINAPI Main(LPVOID)
 
     std::cout << Ascii << "\n\n";
 
-    /* if (!Setup(ProcessEventDetour))
+    if (!Setup(ProcessEventDetour))
     {
         MessageBoxA(0, _("Failed to setup."), _("Argon"), MB_ICONERROR);
         FreeLibraryAndExitThread(GetModuleHandleW(0), 0);
-    } */
+    }
 
     std::string additionalMessage = "";
 
@@ -101,7 +101,7 @@ DWORD WINAPI Main(LPVOID)
         MH_EnableHook((PVOID)cURLEasyAddr);
     }
 
-    /* auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
+    auto RequestExitWithStatusAddr = FindPattern(_("48 8B C4 48 89 58 18 88 50 10 88 48 08"));
     // CHECK_PATTERN(RequestExitWithStatusAddr, _("RequestExitWithStatus"));
 
     if (!RequestExitWithStatusAddr && !bIsS13)
@@ -124,7 +124,7 @@ DWORD WINAPI Main(LPVOID)
     // CreateThread(0, 0, Startup, 0, 0, 0);
     CreateThread(0, 0, GuiHook, 0, 0, 0);
 
-    Logger::Log(_("Hooked and found every pattern successfully!")); */
+    Logger::Log(_("Hooked and found every pattern successfully!"));
 
     return 0;
 }

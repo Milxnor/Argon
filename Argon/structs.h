@@ -929,17 +929,22 @@ bool Setup(void* ProcessEventHookAddr)
 
 	ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
 
-	auto b = MH_CreateHook((PVOID)ProcessEventAddr, ProcessEventHookAddr, (PVOID*)&ProcessEventO);
-	auto c = MH_EnableHook((PVOID)ProcessEventAddr);
-
-	if (b != MH_OK || c != MH_OK)
+	if (FMemory::Free)
 	{
-		std::cout << std::format(_("CreateHook: {} EnableHook: {}\n"), MH_StatusToString(b), MH_StatusToString(c));
-		return false;
-	}
+		auto b = MH_CreateHook((PVOID)ProcessEventAddr, ProcessEventHookAddr, (PVOID*)&ProcessEventO);
+		auto c = MH_EnableHook((PVOID)ProcessEventAddr);
 
-	if (FnVerDouble == 13.40)
-		bIsS13 = true;
+		if (b != MH_OK || c != MH_OK)
+		{
+			std::cout << std::format(_("CreateHook: {} EnableHook: {}\n"), MH_StatusToString(b), MH_StatusToString(c));
+			return false;
+		}
+
+		if (FnVerDouble == 13.40)
+			bIsS13 = true;
+	}
+	else
+		std::cout << _("[WARNING] Did not hook ProcessEvent because no there is FMemory::Free (meaning no ingame or cheatscripts)!") << '\n';
 }
 
 struct FActorSpawnParameters
