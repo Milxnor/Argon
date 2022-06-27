@@ -318,6 +318,8 @@ CURLcode curl_easy_setoptDetour(CURL* curl, CURLoption option, char* url)
 	case CURLOPT_URL:
 	{
 		std::regex EG(_("(.*).ol.epicgames.com"));
+		
+		std::cout << "URL: " << url << '\n';
 
 		for (auto& URL : URLs)
 		{

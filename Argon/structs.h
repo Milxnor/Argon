@@ -881,6 +881,9 @@ bool Setup(void* ProcessEventHookAddr)
 		
 		if (!ToStringAddr)
 			ToStringAddr = FindPattern(_("48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B 01 48 8B F2 8B"));
+
+		if (!ToStringAddr)
+			ToStringAddr = FindPattern(_("48 89 5C 24 18 48 89 74 24 20 57 48 81 EC 30 08 ? ? 48 8B 05 8F FC"));
 	}
 
 	if (!FreeMemoryAddr)
