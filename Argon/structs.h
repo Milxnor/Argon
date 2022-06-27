@@ -883,7 +883,7 @@ bool Setup(void* ProcessEventHookAddr)
 			ToStringAddr = FindPattern(_("48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 8B 01 48 8B F2 8B"));
 
 		if (!ToStringAddr)
-			ToStringAddr = FindPattern(_("48 89 5C 24 18 48 89 74 24 20 57 48 81 EC 30 08 ? ? 48 8B 05 8F FC"));
+			ToStringAddr = FindPattern(_("40 53 56 57 48 81 EC 30 08 ? ? 48 8B 05 76 82 6F 0B 48 33 C4 48 89 84 24 20 08 ? ? 8B 01 48 8B F2 8B F8 0F B7 D8 C1"));
 	}
 
 	if (!FreeMemoryAddr)
@@ -944,7 +944,7 @@ bool Setup(void* ProcessEventHookAddr)
 			bIsS13 = true;
 	}
 	else
-		std::cout << _("[WARNING] Did not hook ProcessEvent because no there is FMemory::Free (meaning no ingame or cheatscripts)!") << '\n';
+		std::cout << _("[WARNING] Did not hook ProcessEvent  (meaning no ingame or cheatscripts) because no there is FMemory::Free!") << '\n';
 }
 
 struct FActorSpawnParameters

@@ -14,7 +14,7 @@
 namespace fs = std::filesystem;
 using namespace nlohmann;
 
-const static auto LauncherVersion = _("0.1");
+const static auto LauncherVersion = _("0.2");
 
 std::wstring widen(const std::string& s)
 {
@@ -31,6 +31,7 @@ struct ProcessParams
 	DWORD creationFlags = CREATE_NEW_CONSOLE;
 	bool exeIsFullPath = false;
 	bool dllIsFullPath = false;
+	const int numArgs = 0;
 };
 
 bool NewProcess(const ProcessParams& params)
@@ -45,7 +46,7 @@ bool NewProcess(const ProcessParams& params)
 	DWORD creationFlags = params.creationFlags;
 	bool fullDirectory = params.exeIsFullPath;
 
-	if (!path.contains(_(".exe"))) path = path + _(".exe"); // TODO: Test path.append(".exe");
+	if (!path.contains(_(".exe"))) path += _(".exe");
 
 	std::wstring wpath;
 	fs::path fspath = fs::current_path() / path;
@@ -77,9 +78,9 @@ bool NewProcess(const ProcessParams& params)
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	auto ProcName = (args.size() > 0) ? NULL : fspath.string().c_str();
+	auto ProcName = (params.numArgs > 0) ? nullptr : fspath.string().c_str();
 
-	if (ProcName == NULL)
+	if (!ProcName)
 		args = std::format(_("\"{}\" {}"), fspath.string(), args);
 
 	std::cout << std::format(_("Starting {} with args {}\n"), fspath.string(), args);
@@ -221,7 +222,7 @@ std::string ReadFromPastebin(const std::string& Url) // terrible
 
 	input_file.close();
 
-	fs::remove(temp);
+	//fs::remove(temp);
 
 	return data;
 }
@@ -285,7 +286,7 @@ int main(){
 	case 1:
 	{	
 		ProcessParams fnShipping;
-		fnShipping.exeName = fnPath + _("FortniteClient-Win64-Shipping.exe");
+		fnShipping.exeName = (fs::path(fnPath) / _("FortniteClient-Win64-Shipping.exe")).generic_string();
 		fnShipping.exeIsFullPath = true;
 		
 		if (!fs::exists(ogAnticheats))
@@ -309,16 +310,19 @@ int main(){
 		
 		DownloadFile(dllPath, ReadFromPastebin(_("https://pastebin.com/raw/3F8QhnQs")));
 
-		NewProcess(fnShipping);
+		if (NewProcess(fnShipping))
+		{
+			std::cout << _("\nLaunched Fortnite!\n");
+		}
 		
-		std::cout << _("\nLaunched Fortnite!\nArgon Discord: https://discord.gg/JqJDDBFUWn.\n");
+		std::cout << _("Argon Discord: https://discord.gg/JqJDDBFUWn.\n");
 	
 		break;
 	}
 	case 2:
 	{
 		std::string S13Path;
-		std::cout << "Please enter your S13 Fortnite Path: ";
+		std::cout << _("Please enter your S13 Fortnite Path: ");
 		std::getline(std::cin, S13Path);
 
 		auto AuthCode = RequestAuthorizationCode();
@@ -343,7 +347,7 @@ int main(){
 		break;
 	}		
 	case 3:
-		if (!options.contains(_("2")))
+		if (!options.contains(_("3")))
 			invalidOption();
 
 		if (fs::exists(bePath) && fs::exists(ogAnticheats + _("FortniteClient-Win64-Shipping_BE.exe")))
