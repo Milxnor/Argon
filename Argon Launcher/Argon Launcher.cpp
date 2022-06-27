@@ -336,7 +336,7 @@ int main(){
 		std::string Arguments = std::format("-AUTH_LOGIN=unused -AUTH_PASSWORD={} -AUTH_TYPE=exchangecode -epicapp=Fortnite -epicenv=Prod -epiclocale=en-us -epicportal -nobe -fromfl=eac -fltoken=24963ce04b575a5ca65526h0 -skippatchcheck", ExchangeCode);
 
 		ProcessParams fnShipping;
-		fnShipping.exeName = (fs::path(S13Path) / _("FortniteClient-Win64-Shipping.exe")).generic_string();
+		fnShipping.exeName = (fs::path(S13Path) / _(R"(\FortniteGame\Binaries\Win64\FortniteClient-Win64-Shipping.exe)")).generic_string();
 		fnShipping.exeIsFullPath = true;
 		fnShipping.exeArguments = Arguments;
 
