@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="account.h" />
     <ClInclude Include="fnauth.h" />
+    <ClInclude Include="installs.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
