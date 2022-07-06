@@ -944,7 +944,7 @@ bool Setup(void* ProcessEventHookAddr)
 			bIsS13 = true;
 	}
 	else
-		std::cout << _("[WARNING] Did not hook ProcessEvent  (meaning no ingame or cheatscripts) because no there is FMemory::Free!") << '\n';
+		std::cout << _("[WARNING] Did not hook ProcessEvent (meaning no ingame or cheatscripts) because no there is FMemory::Free!") << '\n';
 }
 
 struct FActorSpawnParameters

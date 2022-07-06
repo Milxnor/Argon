@@ -15,7 +15,7 @@
 
 using namespace nlohmann;
 
-const static auto LauncherVersion = _("0.2");
+const static std::string LauncherVersion = _("0.2");
 
 void LaunchPrivateServer()
 {
@@ -263,6 +263,11 @@ int main(){
 		std::cin.get();
 	};
 
+	auto notImplemented = []() {
+		std::cout << _("Not Implemented!\n");
+		std::cin.get();
+	};
+
 	static auto bePath = fnPath + _("FortniteClient-Win64-Shipping_BE.exe");
 	static auto eacPath = fnPath + _("FortniteClient-Win64-Shipping_EAC.exe");
 	static auto dllPath = fnPath + _("Argon.dll");
@@ -335,9 +340,8 @@ int main(){
 		break;
 	}
 	case 3:
-	{
-		LaunchPrivateServer();
-	}
+		notImplemented();
+		// LaunchPrivateServer();
 		break;
 	case 4:
 		if (!options.contains(_("4")))

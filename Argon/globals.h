@@ -5,6 +5,7 @@
 #define DEVELOPMENT 1
 
 static double ArgonVersion = 0.1;
+static bool bIsPlainHybrid = false; // Purely redirecting.
 
 namespace Globals
 {

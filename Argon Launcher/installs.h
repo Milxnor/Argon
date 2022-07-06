@@ -7,7 +7,7 @@ enum class Error : uint8_t // IDK OK
 {
 	SUCCESS = 0,
 	FAILED_TO_CREATE_DIR = 1,
-	STREAM_NOT_OPEN = 0
+	STREAM_NOT_OPEN = 2
 };
 
 namespace Installs
