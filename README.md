@@ -1,5 +1,7 @@
 <h1 align="center">Argon</h1>
 
+<h2>Discontinued.</h2>
+
 Discord server:  https://discord.gg/JqJDDBFUWn 
 
 Fortnite hybrid server with ingame.<br>
