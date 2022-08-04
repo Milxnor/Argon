@@ -1,6 +1,6 @@
-<h1 align="center">Argon</h1>
+<h2 align="center">Argon</h2>
 
-<h2>Discontinued.</h2>
+<h1 align="center">Discontinued.</h1>
 
 Discord server:  https://discord.gg/JqJDDBFUWn 
 
